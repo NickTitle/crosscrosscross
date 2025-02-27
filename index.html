@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Three.js Cemetery Scene with Expanded Frustum and Swapped Drag</title>
+  <title>Three.js Cemetery Scene with LODs</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
@@ -64,13 +64,48 @@
   const initialPoolSize = 500; // initial pool size; will grow if needed
   const crossMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
   function createCross() {
-    const cross = new THREE.Group();
-    const vertical = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, 0.2), crossMaterial);
+    const lod = new THREE.LOD();
+
+    // Level 0: detailed cross with boxes.
+    const detailed = new THREE.Group();
+    const vertical = new THREE.Mesh(
+      new THREE.BoxGeometry(0.2, 1.2, 0.2),
+      crossMaterial
+    );
     vertical.position.y = 0.6;
-    const horizontal = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 0.2), crossMaterial);
+    const horizontal = new THREE.Mesh(
+      new THREE.BoxGeometry(0.8, 0.2, 0.2),
+      crossMaterial
+    );
     horizontal.position.y = 0.9;
-    cross.add(vertical, horizontal);
-    return cross;
+    detailed.add(vertical, horizontal);
+    lod.addLevel(detailed, 0); // Use detailed cross when close.
+
+    // Level 1: simplified cross with two planes.
+    const simple = new THREE.Group();
+    const simpleMaterial = crossMaterial.clone();
+    simpleMaterial.side = THREE.DoubleSide;
+
+    // Vertical bar: tall and narrow.
+    const verticalGeometry = new THREE.PlaneGeometry(0.2, 1.2);
+    const verticalBar = new THREE.Mesh(verticalGeometry, simpleMaterial);
+    // Offset so its bottom aligns with y=0.
+    verticalBar.position.y = 1.2 / 2; // 0.6
+
+    // Horizontal bar: wider and narrow.
+    const horizontalGeometry = new THREE.PlaneGeometry(0.8, 0.2);
+    const horizontalBar = new THREE.Mesh(horizontalGeometry, simpleMaterial);
+    // Position to mimic the detailed cross’s crossbar.
+    horizontalBar.position.y = 0.9;
+
+    // Third plane: a copy of the vertical bar rotated 90° around its y-axis.
+    const verticalBarSide = verticalBar.clone();
+    verticalBarSide.rotation.y = Math.PI / 2;
+
+    simple.add(verticalBar, horizontalBar, verticalBarSide);
+    lod.addLevel(simple, 30); // Switch to simplified cross at distance ≥30.
+
+    return lod;
   }
   for (let i = 0; i < initialPoolSize; i++) {
     const cross = createCross();
@@ -79,9 +114,6 @@
   }
 
   // Update cross positions over all tiles visible to the camera.
-  // For each tile, we generate grid positions (3-unit spacing) and then
-  // project them to NDC. If a point lies within an expanded NDC range,
-  // we assign a cross to that position.
   function updateCrossPositions() {
     const targetPositions = [];
     // Margin for X and Y to expand the effective frustum.
@@ -104,17 +136,18 @@
         }
       }
     });
-    // Grow pool if we need more crosses.
+    // Grow pool if more crosses are needed.
     while (crossPool.length < targetPositions.length) {
       const cross = createCross();
       crossPool.push(cross);
       scene.add(cross);
     }
-    // Position crosses and hide any extras.
+    // Position crosses and hide extras.
     for (let i = 0; i < crossPool.length; i++) {
       if (i < targetPositions.length) {
         crossPool[i].visible = true;
         crossPool[i].position.copy(targetPositions[i]);
+        crossPool[i].update(camera);
       } else {
         crossPool[i].visible = false;
       }
@@ -139,7 +172,6 @@
   function onDragMove(x, y) {
     if (!isDragging) return;
     const deltaX = x - prevX, deltaY = y - prevY;
-    // Swapped left/right: now dragging right (positive deltaX) rotates camera right.
     rotationVel = deltaX * 0.0025;
     forwardVel = deltaY * 0.01;
     prevX = x; prevY = y;
