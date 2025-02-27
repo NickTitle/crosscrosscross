@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Three.js Cemetery Scene with LODs</title>
+  <title>Three.js Cemetery Scene with LODs and Fog</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
@@ -14,7 +14,10 @@
 <script>
   // Scene, camera, renderer setup
   const scene = new THREE.Scene();
+  // Background and fog color are the same for smooth blending.
   scene.background = new THREE.Color(0x87ceeb);
+  scene.fog = new THREE.Fog(0x87ceeb, 50, 100);
+
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
   camera.position.set(0, 2, 5);
   const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -29,10 +32,10 @@
 
   // Terrain setup
   function getTerrainHeight(x, z) {
-    return (
-      Math.sin(x * 0.2) * Math.cos(z * 0.2) * 1.5 +
-      Math.cos(x * 0.15) * Math.sin(z * 0.15) * 1.2
-    );
+    const term1 = Math.sin(x * 0.2) * Math.cos(z * 0.2) * 1.5;
+    const term2 = Math.cos(x * 0.15) * Math.sin(z * 0.15) * 1.2;
+    const term3 = Math.sin((x + z) * 0.05) * 2.0; // additional broad undulation
+    return term1 + term2 + term3;
   }
   const terrainSize = 50;
   const terrainGeometry = new THREE.PlaneGeometry(terrainSize, terrainSize, 50, 50);
@@ -61,7 +64,7 @@
 
   // Cross pool using grid placement logic
   const crossPool = [];
-  const initialPoolSize = 500; // initial pool size; will grow if needed
+  const initialPoolSize = 500;
   const crossMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
   function createCross() {
     const lod = new THREE.LOD();
@@ -79,31 +82,22 @@
     );
     horizontal.position.y = 0.9;
     detailed.add(vertical, horizontal);
-    lod.addLevel(detailed, 0); // Use detailed cross when close.
+    lod.addLevel(detailed, 0);
 
     // Level 1: simplified cross with two planes.
     const simple = new THREE.Group();
     const simpleMaterial = crossMaterial.clone();
     simpleMaterial.side = THREE.DoubleSide;
-
-    // Vertical bar: tall and narrow.
     const verticalGeometry = new THREE.PlaneGeometry(0.2, 1.2);
     const verticalBar = new THREE.Mesh(verticalGeometry, simpleMaterial);
-    // Offset so its bottom aligns with y=0.
-    verticalBar.position.y = 1.2 / 2; // 0.6
-
-    // Horizontal bar: wider and narrow.
+    verticalBar.position.y = 0.6;
     const horizontalGeometry = new THREE.PlaneGeometry(0.8, 0.2);
     const horizontalBar = new THREE.Mesh(horizontalGeometry, simpleMaterial);
-    // Position to mimic the detailed cross’s crossbar.
     horizontalBar.position.y = 0.9;
-
-    // Third plane: a copy of the vertical bar rotated 90° around its y-axis.
     const verticalBarSide = verticalBar.clone();
     verticalBarSide.rotation.y = Math.PI / 2;
-
     simple.add(verticalBar, horizontalBar, verticalBarSide);
-    lod.addLevel(simple, 30); // Switch to simplified cross at distance ≥30.
+    lod.addLevel(simple, 30);
 
     return lod;
   }
@@ -116,7 +110,6 @@
   // Update cross positions over all tiles visible to the camera.
   function updateCrossPositions() {
     const targetPositions = [];
-    // Margin for X and Y to expand the effective frustum.
     const margin = 1.2;
     terrains.forEach(terrain => {
       const baseX = terrain.position.x;
@@ -136,13 +129,11 @@
         }
       }
     });
-    // Grow pool if more crosses are needed.
     while (crossPool.length < targetPositions.length) {
       const cross = createCross();
       crossPool.push(cross);
       scene.add(cross);
     }
-    // Position crosses and hide extras.
     for (let i = 0; i < crossPool.length; i++) {
       if (i < targetPositions.length) {
         crossPool[i].visible = true;
@@ -154,11 +145,10 @@
     }
   }
 
-  // Update tiles around the camera
+  // Update tiles around the camera.
   function updateTiles() {
     const camX = Math.floor(camera.position.x / terrainSize) * terrainSize;
     const camZ = Math.floor(camera.position.z / terrainSize) * terrainSize;
-    // Create a 5x5 grid of tiles centered on the camera's current tile.
     for (let i = -2; i <= 2; i++) {
       for (let j = -2; j <= 2; j++) {
         createTile(camX + i * terrainSize, camZ + j * terrainSize);
@@ -166,7 +156,7 @@
     }
   }
 
-  // Camera drag controls with swapped left/right pan
+  // Camera drag controls with swapped left/right pan.
   let forwardVel = 0, rotationVel = 0, isDragging = false, prevX = 0, prevY = 0;
   function onDragStart(x, y) { isDragging = true; prevX = x; prevY = y; }
   function onDragMove(x, y) {
@@ -188,7 +178,7 @@
   });
   window.addEventListener('touchend', onDragEnd);
 
-  // Main animation loop
+  // Main animation loop.
   function animate() {
     requestAnimationFrame(animate);
     camera.rotation.y += rotationVel;
