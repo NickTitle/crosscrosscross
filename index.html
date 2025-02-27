@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Three.js Cemetery Scene</title>
+  <title>Three.js Cemetery Scene with Expanded Frustum and Swapped Drag</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
@@ -12,85 +12,120 @@
 </head>
 <body>
 <script>
+  // Scene, camera, renderer setup
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x87ceeb);
-
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
   camera.position.set(0, 2, 5);
-
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
+  // Lights
   const light = new THREE.DirectionalLight(0xffffff, 1);
   light.position.set(5, 10, 5);
   scene.add(light);
+  scene.add(new THREE.AmbientLight(0x404040));
 
-  const ambientLight = new THREE.AmbientLight(0x404040);
-  scene.add(ambientLight);
-
+  // Terrain setup
   function getTerrainHeight(x, z) {
     return (
       Math.sin(x * 0.2) * Math.cos(z * 0.2) * 1.5 +
       Math.cos(x * 0.15) * Math.sin(z * 0.15) * 1.2
     );
   }
-
   const terrainSize = 50;
   const terrainGeometry = new THREE.PlaneGeometry(terrainSize, terrainSize, 50, 50);
-  terrainGeometry.rotateX(-Math.PI / 2);
+  terrainGeometry.rotateX(-Math.PI/2);
   const terrainMaterial = new THREE.MeshStandardMaterial({ color: 0x228B22 });
-
   function generateHills(geometry, offsetX, offsetZ) {
     const vertices = geometry.attributes.position;
     for (let i = 0; i < vertices.count; i++) {
       const worldX = vertices.getX(i) + offsetX;
       const worldZ = vertices.getZ(i) + offsetZ;
-      const height = getTerrainHeight(worldX, worldZ);
-      vertices.setY(i, height);
+      vertices.setY(i, getTerrainHeight(worldX, worldZ));
     }
     vertices.needsUpdate = true;
   }
-
+  // Tile management (stored in a Map)
   const terrains = new Map();
-  const crosses = new Map();
-
   function createTile(x, z) {
     const key = `${x},${z}`;
     if (terrains.has(key)) return;
-
-    // Terrain mesh
     const terrain = new THREE.Mesh(terrainGeometry.clone(), terrainMaterial);
     generateHills(terrain.geometry, x, z);
     terrain.position.set(x, 0, z);
     scene.add(terrain);
     terrains.set(key, terrain);
-
-    // Simple crosses placed in a grid
-    const crossMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-    const group = new THREE.Group();
-    for (let cx = -terrainSize / 2; cx <= terrainSize / 2; cx += 3) {
-      for (let cz = -terrainSize / 2; cz <= terrainSize / 2; cz += 3) {
-        const cross = new THREE.Group();
-        const vertical = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, 0.2), crossMaterial);
-        vertical.position.y = 0.6;
-        const horizontal = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 0.2), crossMaterial);
-        horizontal.position.y = 0.9;
-        cross.add(vertical, horizontal);
-
-        const height = getTerrainHeight(x + cx, z + cz);
-        cross.position.set(x + cx, height, z + cz);
-        group.add(cross);
-      }
-    }
-    scene.add(group);
-    crosses.set(key, group);
   }
 
+  // Cross pool using grid placement logic
+  const crossPool = [];
+  const initialPoolSize = 500; // initial pool size; will grow if needed
+  const crossMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  function createCross() {
+    const cross = new THREE.Group();
+    const vertical = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.2, 0.2), crossMaterial);
+    vertical.position.y = 0.6;
+    const horizontal = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.2, 0.2), crossMaterial);
+    horizontal.position.y = 0.9;
+    cross.add(vertical, horizontal);
+    return cross;
+  }
+  for (let i = 0; i < initialPoolSize; i++) {
+    const cross = createCross();
+    crossPool.push(cross);
+    scene.add(cross);
+  }
+
+  // Update cross positions over all tiles visible to the camera.
+  // For each tile, we generate grid positions (3-unit spacing) and then
+  // project them to NDC. If a point lies within an expanded NDC range,
+  // we assign a cross to that position.
+  function updateCrossPositions() {
+    const targetPositions = [];
+    // Margin for X and Y to expand the effective frustum.
+    const margin = 1.2;
+    terrains.forEach(terrain => {
+      const baseX = terrain.position.x;
+      const baseZ = terrain.position.z;
+      for (let cx = -terrainSize/2; cx <= terrainSize/2; cx += 3) {
+        for (let cz = -terrainSize/2; cz <= terrainSize/2; cz += 3) {
+          const pos = new THREE.Vector3(baseX + cx, 0, baseZ + cz);
+          pos.y = getTerrainHeight(pos.x, pos.z);
+          const projected = pos.clone().project(camera);
+          if (
+            projected.x >= -margin && projected.x <= margin &&
+            projected.y >= -margin && projected.y <= margin &&
+            projected.z >= 0 && projected.z <= 1
+          ) {
+            targetPositions.push(pos);
+          }
+        }
+      }
+    });
+    // Grow pool if we need more crosses.
+    while (crossPool.length < targetPositions.length) {
+      const cross = createCross();
+      crossPool.push(cross);
+      scene.add(cross);
+    }
+    // Position crosses and hide any extras.
+    for (let i = 0; i < crossPool.length; i++) {
+      if (i < targetPositions.length) {
+        crossPool[i].visible = true;
+        crossPool[i].position.copy(targetPositions[i]);
+      } else {
+        crossPool[i].visible = false;
+      }
+    }
+  }
+
+  // Update tiles around the camera
   function updateTiles() {
     const camX = Math.floor(camera.position.x / terrainSize) * terrainSize;
     const camZ = Math.floor(camera.position.z / terrainSize) * terrainSize;
-
+    // Create a 5x5 grid of tiles centered on the camera's current tile.
     for (let i = -2; i <= 2; i++) {
       for (let j = -2; j <= 2; j++) {
         createTile(camX + i * terrainSize, camZ + j * terrainSize);
@@ -98,86 +133,46 @@
     }
   }
 
-  // We'll store a forward/back velocity (along camera's look direction) and a rotation velocity
-  let forwardVel = 0;
-  let rotationVel = 0;
-
-  // Drag control
-  let isDragging = false;
-  let prevX = 0, prevY = 0;
-
-  function onDragStart(x, y) {
-    isDragging = true;
-    prevX = x;
-    prevY = y;
-  }
-
+  // Camera drag controls with swapped left/right pan
+  let forwardVel = 0, rotationVel = 0, isDragging = false, prevX = 0, prevY = 0;
+  function onDragStart(x, y) { isDragging = true; prevX = x; prevY = y; }
   function onDragMove(x, y) {
     if (!isDragging) return;
-    const deltaX = x - prevX;
-    const deltaY = y - prevY;
-
-    // Convert small drags into some velocity
-    rotationVel = -deltaX * 0.0025;    // horizontal motion => rotation
-    forwardVel  = deltaY * 0.01;     // vertical motion => forward/back
-
-    prevX = x;
-    prevY = y;
+    const deltaX = x - prevX, deltaY = y - prevY;
+    // Swapped left/right: now dragging right (positive deltaX) rotates camera right.
+    rotationVel = deltaX * 0.0025;
+    forwardVel = deltaY * 0.01;
+    prevX = x; prevY = y;
   }
-
-  function onDragEnd() {
-    isDragging = false;
-    // Reset velocities so camera stops moving once user stops dragging
-    forwardVel = 0;
-    rotationVel = 0;
-  }
-
-  // Mouse events
+  function onDragEnd() { isDragging = false; forwardVel = 0; rotationVel = 0; }
   window.addEventListener('mousedown', e => onDragStart(e.clientX, e.clientY));
   window.addEventListener('mousemove', e => onDragMove(e.clientX, e.clientY));
   window.addEventListener('mouseup', onDragEnd);
-
-  // Touch events
   window.addEventListener('touchstart', e => {
-    if (e.touches.length === 1) {
-      onDragStart(e.touches[0].clientX, e.touches[0].clientY);
-    }
+    if (e.touches.length === 1) onDragStart(e.touches[0].clientX, e.touches[0].clientY);
   });
   window.addEventListener('touchmove', e => {
-    if (e.touches.length === 1) {
-      onDragMove(e.touches[0].clientX, e.touches[0].clientY);
-    }
+    if (e.touches.length === 1) onDragMove(e.touches[0].clientX, e.touches[0].clientY);
   });
   window.addEventListener('touchend', onDragEnd);
 
+  // Main animation loop
   function animate() {
     requestAnimationFrame(animate);
-
-    // Apply rotation velocity around the Y axis
     camera.rotation.y += rotationVel;
-
-    // Move camera forward/back along its look direction
     const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation).normalize();
     camera.position.addScaledVector(forwardDir, forwardVel);
-
-    // Keep camera at terrain height + offset
-    const groundHeight = getTerrainHeight(camera.position.x, camera.position.z);
-    camera.position.y = groundHeight + 2;
-
-    renderer.render(scene, camera);
+    camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2;
     updateTiles();
+    updateCrossPositions();
+    renderer.render(scene, camera);
   }
-
   animate();
-
-  // Handle window resize
   window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
-
-  // Load initial terrain tiles
   updateTiles();
 </script>
 </body>
