@@ -82,7 +82,7 @@
     const terrainSize = 50;
     const terrainGeo = new THREE.PlaneGeometry(terrainSize, terrainSize, 50, 50);
     terrainGeo.rotateX(-Math.PI / 2);
-    const terrainMat = new THREE.MeshStandardMaterial({ color: 0x074a07 });
+    const terrainMat = new THREE.MeshStandardMaterial({ color: 0x151515 });
     function generateHills(geo, offsetX, offsetZ) {
       const pos = geo.attributes.position;
       for (let i = 0; i < pos.count; i++) {
