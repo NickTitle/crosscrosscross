@@ -299,7 +299,7 @@
         const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation).normalize();
         camera.position.addScaledVector(forwardDir, forwardVel);
         if (moveToTarget) {
-          const speed = 0.1;
+          const speed = 0.01;
           const diff = new THREE.Vector2(moveToTarget.x - camera.position.x, moveToTarget.z - camera.position.z);
           if (diff.length() < 1) moveToTarget = null;
           else {
@@ -307,7 +307,7 @@
             camera.position.z += diff.y * speed;
           }
         }
-        camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2;
+        camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
         updateTiles();
         updateBatPositions();
         renderer.render(scene, camera);
