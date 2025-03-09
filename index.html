@@ -234,9 +234,41 @@
       window.addEventListener('mousedown', e => onDragStart(e.clientX, e.clientY));
       window.addEventListener('mousemove', e => onDragMove(e.clientX, e.clientY));
       window.addEventListener('mouseup', onDragEnd);
-      window.addEventListener('touchstart', e => { if (e.touches.length === 1) onDragStart(e.touches[0].clientX, e.touches[0].clientY); });
-      window.addEventListener('touchmove', e => { if (e.touches.length === 1) onDragMove(e.touches[0].clientX, e.touches[0].clientY); });
-      window.addEventListener('touchend', onDragEnd);
+
+      // Updated touch event handlers.
+      let touchStartX = 0, touchStartY = 0;
+      let touchMoved = false;
+      const dragThreshold = 5; // pixels
+      function handleTouchStart(e) {
+        if (e.touches.length === 1) {
+          const touch = e.touches[0];
+          touchStartX = touch.clientX;
+          touchStartY = touch.clientY;
+          touchMoved = false;
+          onDragStart(touch.clientX, touch.clientY);
+        }
+      }
+      function handleTouchMove(e) {
+        if (e.touches.length === 1) {
+          const touch = e.touches[0];
+          const dx = touch.clientX - touchStartX;
+          const dy = touch.clientY - touchStartY;
+          if (Math.sqrt(dx * dx + dy * dy) > dragThreshold) {
+            touchMoved = true;
+          }
+          onDragMove(touch.clientX, touch.clientY);
+        }
+      }
+      function handleTouchEnd(e) {
+        onDragEnd();
+        // If movement was below threshold, treat as a tap.
+        if (!touchMoved) {
+          onClick({ clientX: touchStartX, clientY: touchStartY });
+        }
+      }
+      window.addEventListener('touchstart', handleTouchStart);
+      window.addEventListener('touchmove', handleTouchMove);
+      window.addEventListener('touchend', handleTouchEnd);
 
       // Bat click/tap navigation.
       const raycaster = new THREE.Raycaster();
