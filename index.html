@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three.js Cemetery Scene with Bat LODs and Nike Swoosh Loader</title>
+  <title>Three.js Scene with Bat LODs, Nike Swoosh Loader, and Rain Streaks</title>
   <style>
     body {
       margin: 0;
@@ -15,7 +15,6 @@
       display: block;
     }
 
-    /* Loading bar styling for a Nike-swoosh feel */
     #loadingBarContainer {
       position: absolute;
       top: 50%;
@@ -42,7 +41,6 @@
 </head>
 
 <body>
-  <!-- Loader elements -->
   <div id="loadingBarContainer">
     <div id="loadingBar"></div>
   </div>
@@ -58,6 +56,54 @@
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
+
+    // --- Rain Setup with Pool of Skinny Rectangles ---
+    const rainPool = [];
+    const initialRainPoolSize = 600;
+    const rainArea = { width: 50, depth: 50, height: 50 };
+    const rainSpeed = 40; // units per second
+
+    function createRainDrop() {
+      // Create a skinny rectangle (a vertical plane)
+      const geometry = new THREE.PlaneGeometry(0.02, 1);
+      const material = new THREE.MeshBasicMaterial({ color: 0xDDDDDD });
+      const drop = new THREE.Mesh(geometry, material);
+      // Rotate so the long side is vertical.
+      drop.rotation.y = -Math.PI / 2;
+      return drop;
+    }
+
+    // Initialize the pool with drops positioned randomly around the camera.
+    for (let i = 0; i < initialRainPoolSize; i++) {
+      const drop = createRainDrop();
+      drop.position.x = camera.position.x + (Math.random() - 0.5) * rainArea.width;
+      drop.position.y = camera.position.y + (Math.random() - 0.5) * rainArea.height;
+      drop.position.z = camera.position.z + (Math.random() - 0.5) * rainArea.depth;
+      rainPool.push(drop);
+      scene.add(drop);
+    }
+
+    function updateRainDrops(delta) {
+      for (let drop of rainPool) {
+        drop.position.y -= rainSpeed * delta;
+
+        // Reposition if the drop falls below the lower boundary relative to the camera.
+        if (drop.position.y < camera.position.y - rainArea.height / 2) {
+          drop.position.y = camera.position.y + rainArea.height / 2;
+          drop.position.x = camera.position.x + (Math.random() - 0.5) * rainArea.width;
+          drop.position.z = camera.position.z + (Math.random() - 0.5) * rainArea.depth;
+        }
+        // Also re-center drops that stray too far in X or Z relative to the camera.
+        if (Math.abs(drop.position.x - camera.position.x) > rainArea.width / 2) {
+          drop.position.x = camera.position.x + (Math.random() - 0.5) * rainArea.width;
+        }
+        if (Math.abs(drop.position.z - camera.position.z) > rainArea.depth / 2) {
+          drop.position.z = camera.position.z + (Math.random() - 0.5) * rainArea.depth;
+        }
+
+        drop.quaternion.copy(camera.quaternion);
+      }
+    }
 
     // Lighting.
     const sunLight = new THREE.DirectionalLight(0xffffff, 0.9);
@@ -83,6 +129,7 @@
     const terrainGeo = new THREE.PlaneGeometry(terrainSize, terrainSize, 50, 50);
     terrainGeo.rotateX(-Math.PI / 2);
     const terrainMat = new THREE.MeshStandardMaterial({ color: 0x151515 });
+    const terrains = new Map();
     function generateHills(geo, offsetX, offsetZ) {
       const pos = geo.attributes.position;
       for (let i = 0; i < pos.count; i++) {
@@ -92,7 +139,6 @@
       }
       pos.needsUpdate = true;
     }
-    const terrains = new Map();
     function createTile(x, z) {
       const key = `${x},${z}`;
       if (terrains.has(key)) return;
@@ -106,7 +152,7 @@
 
     // Loader setup.
     const loader = new THREE.GLTFLoader();
-    let batMidModel = null, batLowModel = null;
+    let batHiModel = null, batMidModel = null, batLowModel = null;
     let progressMid = 0, progressLow = 0;
     const loadingBar = document.getElementById('loadingBar');
     function updateLoadingBar() {
@@ -124,7 +170,7 @@
       });
     }
 
-    // Load both bat models.
+    // Load bat models.
     Promise.all([
       loadModel('bat_hi.glb', p => { progressMid = p; }),
       loadModel('bat_mid.glb', p => { progressMid = p; }),
@@ -134,10 +180,9 @@
       const loaderElem = document.getElementById('loadingBarContainer');
       if (loaderElem) loaderElem.remove();
 
-      batHiModel = gltfHi.scene
+      batHiModel = gltfHi.scene;
       batMidModel = gltfMid.scene;
       batLowModel = gltfLow.scene;
-      // Configure models.
       [batHiModel, batMidModel, batLowModel].forEach(model => {
         model.scale.set(3, 3, 3);
         model.position.y = 2.1;
@@ -145,20 +190,29 @@
       });
 
       const crossMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+      const handleMaterial = new THREE.MeshStandardMaterial({ color: 0x82531D });
       const simple = new THREE.Group();
       const simpleMaterial = crossMaterial.clone();
       simpleMaterial.side = THREE.DoubleSide;
-      const verticalGeometry = new THREE.PlaneGeometry(0.15, 2.25);
-      const verticalBar = new THREE.Mesh(verticalGeometry, simpleMaterial);
-      verticalBar.position.y = 1;
+
+      const verticalGeometryA = new THREE.PlaneGeometry(0.15, 1.5);
+      const verticalBarA = new THREE.Mesh(verticalGeometryA, simpleMaterial);
+      verticalBarA.position.y = 1.25;
+      const verticalBarASide = verticalBarA.clone();
+      verticalBarASide.rotation.y = Math.PI / 2;
+
+      const verticalGeometryB = new THREE.PlaneGeometry(0.08, 0.75);
+      const verticalBarB = new THREE.Mesh(verticalGeometryB, handleMaterial);
+      verticalBarB.position.y = 0.25;
+      const verticalBarBSide = verticalBarB.clone();
+      verticalBarBSide.rotation.y = Math.PI / 2;
+
       const horizontalGeometry = new THREE.PlaneGeometry(0.8, 0.2);
       const horizontalBar = new THREE.Mesh(horizontalGeometry, simpleMaterial);
       horizontalBar.position.y = 1.6;
-      const verticalBarSide = verticalBar.clone();
-      verticalBarSide.rotation.y = Math.PI / 2;
-      simple.add(verticalBar, horizontalBar, verticalBarSide);
 
-      simple.position.y = 1.1
+      simple.add(verticalBarA, verticalBarASide, verticalBarB, verticalBarBSide, horizontalBar);
+      simple.position.y = 1.1;
 
       // Bat pool with LOD.
       const batPool = [];
@@ -166,7 +220,7 @@
       function createBat() {
         const lod = new THREE.LOD();
         lod.addLevel(batHiModel.clone(), 0);
-        lod.addLevel(batMidModel.clone(), 4);
+        lod.addLevel(batMidModel.clone(), 5);
         lod.addLevel(simple.clone(), 30);
         lod.traverse(child => { if (child.isMesh) child.castShadow = true; });
         return lod;
@@ -177,7 +231,7 @@
         scene.add(bat);
       }
 
-      // Update bat positions over visible tiles.
+      // Update bat positions.
       function updateBatPositions() {
         const targetPositions = [];
         const margin = 3;
@@ -213,7 +267,7 @@
         }
       }
 
-      // Update tiles around the camera.
+      // Update terrain tiles.
       function updateTiles() {
         const camX = Math.floor(camera.position.x / terrainSize) * terrainSize;
         const camZ = Math.floor(camera.position.z / terrainSize) * terrainSize;
@@ -239,10 +293,10 @@
       window.addEventListener('mousemove', e => onDragMove(e.clientX, e.clientY));
       window.addEventListener('mouseup', onDragEnd);
 
-      // Updated touch event handlers.
+      // Touch event handlers.
       let touchStartX = 0, touchStartY = 0;
       let touchMoved = false;
-      const dragThreshold = 5; // pixels
+      const dragThreshold = 5;
       function handleTouchStart(e) {
         if (e.touches.length === 1) {
           const touch = e.touches[0];
@@ -257,15 +311,12 @@
           const touch = e.touches[0];
           const dx = touch.clientX - touchStartX;
           const dy = touch.clientY - touchStartY;
-          if (Math.sqrt(dx * dx + dy * dy) > dragThreshold) {
-            touchMoved = true;
-          }
+          if (Math.sqrt(dx * dx + dy * dy) > dragThreshold) touchMoved = true;
           onDragMove(touch.clientX, touch.clientY);
         }
       }
       function handleTouchEnd(e) {
         onDragEnd();
-        // If movement was below threshold, treat as a tap.
         if (!touchMoved) {
           onClick({ clientX: touchStartX, clientY: touchStartY });
         }
@@ -293,8 +344,15 @@
       window.addEventListener('click', onClick, false);
 
       // Main animation loop.
+      let lastTime = performance.now();
       function animate() {
         requestAnimationFrame(animate);
+
+        const currentTime = performance.now();
+        const delta = (currentTime - lastTime) / 1000; // seconds
+        lastTime = currentTime;
+
+        // Update camera movement.
         camera.rotation.y += rotationVel;
         const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation).normalize();
         camera.position.addScaledVector(forwardDir, forwardVel);
@@ -308,10 +366,15 @@
           }
         }
         camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
+
         updateTiles();
         updateBatPositions();
+        // Update rain drops.
+        updateRainDrops(delta);
+
         renderer.render(scene, camera);
       }
+
       animate();
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
