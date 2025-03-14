@@ -41,7 +41,7 @@
 
     #loadingAmt {
       position: absolute;
-      top: 50%;
+      bottom: 20px;
       left: 20px;
       translate: (-50%, -50%);
     }
@@ -276,7 +276,8 @@
       loadModel('bat_low.glb', p => { progressLow = p; }),
       loadModel('billboard.glb', p => { progressBillboard = p })
     ]).then(([gltfHi, gltfMid, gltfLow, gltfBillboard]) => {
-      // Remove loader.
+      loadingAmt.innerHTML = "100%";
+      loadingAmt.classList.add('fastHidden');
       consentBox.classList.add('fade');
       consentBox.classList.remove('hidden');
 
@@ -449,6 +450,9 @@
       const pointer = new THREE.Vector2();
       let moveToTarget = null;
       function onClick(event) {
+        if (loadingAmt < 100) {
+          return;
+        }
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
         raycaster.setFromCamera(pointer, camera);
