@@ -15,25 +15,100 @@
       display: block;
     }
 
-    #loadingBarContainer {
+    #loadingScreen {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 200px;
-      height: 20px;
-      background-color: #ccc;
+      width: 100%;
+      height: 100%;
+      background-color: #000;
       border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
 
-    #loadingBar {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(45deg, #111, #fff);
-      border-radius: 10px;
-      transition: width 0.2s ease;
+    #disclaimer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      margin-right: -50%;
+      transform: translate(-50%, -50%);
+      width: min(80%, 375px);
+    }
+
+    #consentBox {
+      display: flex;
+      justify-content: space-evenly;
+    }
+
+    #loadingAmt {
+      position: absolute;
+      top: 50%;
+      left: 20px;
+      translate: (-50%, -50%);
+    }
+
+    input[type="checkbox"] {
+      vertical-align: middle;
+    }
+
+    .menuText {
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: lighter;
+      font-size: 10px;
+    }
+
+    .fastHidden {
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s 1s, opacity 1s ease;
+    }
+
+    .hidden {
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0s 2s, opacity 2s linear;
+    }
+
+    .fade {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .fade[hidden] {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    input[type="checkbox"] {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #000;
+      /* fixed border color */
+      border-radius: 4px;
+      cursor: pointer;
+      position: relative;
+      background-color: #fff;
+      /* base background */
+    }
+
+    input[type="checkbox"]:checked {
+      background-color: #000;
+      /* black background when checked */
+    }
+
+    input[type="checkbox"]:checked::after {
+      content: "\2713";
+      /* white check */
+      color: #fff;
+      font-size: 16px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/build/three.min.js"></script>
@@ -41,14 +116,35 @@
 </head>
 
 <body>
-  <div id="loadingBarContainer">
-    <div id="loadingBar"></div>
+  <div id="loadingScreen">
+    <div id="disclaimer" class="menuText">
+      <p>This work critically engages with the Nike Swoosh as a cultural symbol and is
+        intended as artistic commentary. It is not authorized, endorsed, affiliated with or
+        sponsored by Nike, Inc. The Swoosh is a registered trademark of Nike, Inc.
+      </p>
+      <p>
+        By proceeding, you acknowledge that this content is not associated with Nike, Inc.
+      </p>
+      <div id="consentBox" class="hidden">
+        <div>
+          <input type="checkbox" id="acknowledge">
+          <label for="acknowledge">I Understand & Accept</label>
+        </div>
+        <div>
+          <input type="checkbox" id="takeMeBack">
+          <label for="takeMeBack">Take me back</label>
+        </div>
+
+      </div>
+
+    </div>
+    <div id="loadingAmt" class="menuText"></div>
   </div>
   <script>
     // Scene, camera, renderer.
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xFFFFFF);
-    scene.fog = new THREE.Fog(0xFFFFFF, 25, 50);
+    scene.background = new THREE.Color(0xE8E8E8);
+    scene.fog = new THREE.Fog(0xE8E8E8, 10, 50);
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
     camera.position.set(0, 2, 5);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -66,7 +162,7 @@
     function createRainDrop() {
       // Create a skinny rectangle (a vertical plane)
       const geometry = new THREE.PlaneGeometry(0.02, 1);
-      const material = new THREE.MeshBasicMaterial({ color: 0xDDDDDD });
+      const material = new THREE.MeshBasicMaterial({ color: 0xBBBBBB });
       const drop = new THREE.Mesh(geometry, material);
       // Rotate so the long side is vertical.
       drop.rotation.y = -Math.PI / 2;
@@ -152,19 +248,22 @@
 
     // Loader setup.
     const loader = new THREE.GLTFLoader();
-    let batHiModel = null, batMidModel = null, batLowModel = null;
-    let progressMid = 0, progressLow = 0;
-    const loadingBar = document.getElementById('loadingBar');
-    function updateLoadingBar() {
-      const pct = ((progressMid + progressLow) / 2) * 100;
-      loadingBar.style.width = pct + '%';
+    let batHiModel = null, batMidModel = null, batLowModel = null, billboardModel = null;
+    let progressHi = 0, progressMid = 0, progressLow = 0, progressBillboard = 0;
+    const loadingAmt = document.getElementById('loadingAmt');
+    const consentBox = document.getElementById('consentBox');
+    const iUnderstand = document.getElementById('acknowledge');
+    const takeMeBack = document.getElementById('takeMeBack');
+    function updateloadingAmt() {
+      const pct = ((progressHi + progressMid + progressLow + progressBillboard) / 4) * 100;
+      loadingAmt.innerHTML = Math.floor(pct) + "%"
     }
     function loadModel(url, progressUpdater) {
       return new Promise((resolve, reject) => {
         loader.load(url, gltf => resolve(gltf), xhr => {
           if (xhr.lengthComputable) {
             progressUpdater(xhr.loaded / xhr.total);
-            updateLoadingBar();
+            updateloadingAmt();
           }
         }, reject);
       });
@@ -174,20 +273,37 @@
     Promise.all([
       loadModel('bat_hi.glb', p => { progressMid = p; }),
       loadModel('bat_mid.glb', p => { progressMid = p; }),
-      loadModel('bat_low.glb', p => { progressLow = p; })
-    ]).then(([gltfHi, gltfMid, gltfLow]) => {
+      loadModel('bat_low.glb', p => { progressLow = p; }),
+      loadModel('billboard.glb', p => { progressBillboard = p })
+    ]).then(([gltfHi, gltfMid, gltfLow, gltfBillboard]) => {
       // Remove loader.
-      const loaderElem = document.getElementById('loadingBarContainer');
-      if (loaderElem) loaderElem.remove();
+      consentBox.classList.add('fade');
+      consentBox.classList.remove('hidden');
 
-      batHiModel = gltfHi.scene;
-      batMidModel = gltfMid.scene;
+      iUnderstand.addEventListener('click', function () {
+        loadingAmt.classList.add('fastHidden');
+        const loaderElem = document.getElementById('loadingScreen').classList.add('hidden');
+        if (loaderElem) loaderElem.remove();
+      });
+
+      takeMeBack.addEventListener('click', function () {
+        document.location = "https://nicktitle.github.io/meadowtext?text=%20"
+      })
+
+
       batLowModel = gltfLow.scene;
+      batMidModel = gltfMid.scene;
+      batHiModel = gltfHi.scene;
+      billboardModel = gltfBillboard.scene;
+
       [batHiModel, batMidModel, batLowModel].forEach(model => {
         model.scale.set(3, 3, 3);
         model.position.y = 2.1;
         model.rotation.y = Math.PI / 2;
       });
+
+      billboardModel.scale.set(3, 3, 3);
+      billboardModel.position.set(0.5, -2, -35);
 
       const crossMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
       const handleMaterial = new THREE.MeshStandardMaterial({ color: 0x82531D });
@@ -230,6 +346,9 @@
         batPool.push(bat);
         scene.add(bat);
       }
+
+      // position billboard
+      scene.add(billboardModel);
 
       // Update bat positions.
       function updateBatPositions() {
