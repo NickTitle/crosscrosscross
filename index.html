@@ -20,7 +20,6 @@
       width: 100%;
       height: 100%;
       background-color: #000;
-      border-radius: 10px;
       overflow: hidden;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
@@ -451,7 +450,7 @@
         requestAnimationFrame(animate);
 
         const currentTime = performance.now();
-        const delta = (currentTime - lastTime) / 1000; // seconds
+        let delta = (currentTime - lastTime) / 1000; // seconds
         delta = Math.min(delta, 0.1);
         lastTime = currentTime;
 
