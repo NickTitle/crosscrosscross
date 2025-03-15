@@ -452,6 +452,7 @@
 
         const currentTime = performance.now();
         const delta = (currentTime - lastTime) / 1000; // seconds
+        delta = Math.min(delta, 0.1);
         lastTime = currentTime;
 
         // Update camera movement.
