@@ -445,27 +445,6 @@
       window.addEventListener('touchmove', handleTouchMove);
       window.addEventListener('touchend', handleTouchEnd);
 
-      // Bat click/tap navigation.
-      const raycaster = new THREE.Raycaster();
-      const pointer = new THREE.Vector2();
-      let moveToTarget = null;
-      function onClick(event) {
-        if (loadingAmt < 100) {
-          return;
-        }
-        pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-        pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        raycaster.setFromCamera(pointer, camera);
-        const intersects = raycaster.intersectObjects(batPool, true);
-        if (intersects.length > 0) {
-          const batStopDistance = 1.0;
-          const batPoint = intersects[0].point.clone();
-          const direction = new THREE.Vector3().subVectors(batPoint, camera.position).normalize();
-          moveToTarget = batPoint.clone().sub(direction.multiplyScalar(batStopDistance));
-        }
-      }
-      window.addEventListener('click', onClick, false);
-
       // Main animation loop.
       let lastTime = performance.now();
       function animate() {
@@ -479,15 +458,6 @@
         camera.rotation.y += rotationVel;
         const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation).normalize();
         camera.position.addScaledVector(forwardDir, forwardVel);
-        if (moveToTarget) {
-          const speed = 0.01;
-          const diff = new THREE.Vector2(moveToTarget.x - camera.position.x, moveToTarget.z - camera.position.z);
-          if (diff.length() < 1) moveToTarget = null;
-          else {
-            camera.position.x += diff.x * speed;
-            camera.position.z += diff.y * speed;
-          }
-        }
         camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
 
         updateTiles();
