@@ -109,12 +109,96 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
+
+    .ui-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+
+    .ui-container>* {
+      pointer-events: auto;
+    }
+
+    .ui-container p {
+      margin: 0;
+    }
+
+
+    /* Base styles for all divs */
+    .name,
+    .links,
+    .copyright,
+    .shop {
+      font: 11pt Arial, sans-serif;
+      text-transform: uppercase;
+      padding-left: 3ch;
+      padding-top: 3ch;
+      /* small offset approx. 3 characters */
+    }
+
+    /* For screens wider than 1024px */
+    @media (min-width: 1024px) {
+      .name {
+        position: absolute;
+        left: 0%;
+        top: 0%;
+      }
+
+      .links {
+        position: absolute;
+        left: 25%;
+        top: 0%;
+      }
+
+      .copyright {
+        position: absolute;
+        left: 0%;
+        top: 25%;
+      }
+
+      .shop {
+        position: absolute;
+        left: 25%;
+        top: 25%;
+      }
+    }
+
+    /* For screens under 1024px */
+    @media (max-width: 1023px) {
+      .name {
+        position: absolute;
+        left: 0%;
+        top: 0%;
+      }
+
+      .links {
+        position: absolute;
+        left: 50%;
+        top: 0%;
+      }
+
+      .copyright {
+        position: absolute;
+        left: 0%;
+        top: 12.5%;
+      }
+
+      .shop {
+        position: absolute;
+        left: 50%;
+        top: 12.5%;
+      }
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 
 <body>
+
   <div id="loadingScreen">
     <div id="disclaimer" class="menuText">
       <p>This work critically engages with the Nike Swoosh as a cultural symbol and is
@@ -138,6 +222,16 @@
 
     </div>
     <div id="loadingAmt" class="menuText"></div>
+  </div>
+  <div class="ui-container">
+    <div class="name">eduardo enrique</div>
+    <div class="links">
+      <p>about</p>
+      <p>selected works</p>
+      <p>contact</p>
+    </div>
+    <div class="copyright">(c) 2025 all rights reserved</div>
+    <div class="shop">shop</div>
   </div>
   <script>
     // Scene, camera, renderer.
