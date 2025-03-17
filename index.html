@@ -110,23 +110,6 @@
       transform: translate(-50%, -50%);
     }
 
-    .ui-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
-
-
-    .ui-container>* {
-      pointer-events: auto;
-    }
-
-    .ui-container p {
-      margin: 0;
-    }
-
-
     /* Base styles for all divs */
     .name,
     .links,
@@ -137,6 +120,10 @@
       padding-left: 3ch;
       padding-top: 3ch;
       /* small offset approx. 3 characters */
+    }
+
+    .links p {
+      margin: 0;
     }
 
     /* For screens wider than 1024px */
@@ -168,6 +155,11 @@
 
     /* For screens under 1024px */
     @media (max-width: 1023px) {
+
+      .name .links .copyright .shop {
+        font-size: 9pt;
+      }
+
       .name {
         position: absolute;
         left: 0%;
@@ -223,16 +215,14 @@
     </div>
     <div id="loadingAmt" class="menuText"></div>
   </div>
-  <div class="ui-container">
-    <div class="name">eduardo enrique</div>
-    <div class="links">
-      <p>about</p>
-      <p>selected works</p>
-      <p>contact</p>
-    </div>
-    <div class="copyright">(c) 2025 all rights reserved</div>
-    <div class="shop">shop</div>
+  <div class="name">eduardo enrique</div>
+  <div class="links">
+    <p>about</p>
+    <p>selected works</p>
+    <p>contact</p>
   </div>
+  <div class="copyright">(c) 2025 all rights reserved</div>
+  <div class="shop">shop</div>
   <script>
     // Scene, camera, renderer.
     const scene = new THREE.Scene();
