@@ -4,194 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Three.js Scene with Bat LODs, Nike Swoosh Loader, and Rain Streaks</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-
-    canvas {
-      display: block;
-    }
-
-    #loadingScreen {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-color: #000;
-      overflow: hidden;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    }
-
-    #disclaimer {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-right: -50%;
-      transform: translate(-50%, -50%);
-      width: min(80%, 375px);
-    }
-
-    #consentBox {
-      display: flex;
-      justify-content: space-evenly;
-    }
-
-    #loadingAmt {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      translate: (-50%, -50%);
-    }
-
-    input[type="checkbox"] {
-      vertical-align: middle;
-    }
-
-    .menuText {
-      color: #fff;
-      font-family: Arial, Helvetica, sans-serif;
-      font-weight: lighter;
-      font-size: 10px;
-    }
-
-    .fastHidden {
-      visibility: hidden;
-      opacity: 0;
-      transition: visibility 0s 1s, opacity 1s ease;
-    }
-
-    .hidden {
-      visibility: hidden;
-      opacity: 0;
-      transition: visibility 0s 2s, opacity 2s linear;
-    }
-
-    .fade {
-      opacity: 1;
-      visibility: visible;
-      transition: opacity 0.5s ease, visibility 0.5s ease;
-    }
-
-    .fade[hidden] {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    input[type="checkbox"] {
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #000;
-      /* fixed border color */
-      border-radius: 4px;
-      cursor: pointer;
-      position: relative;
-      background-color: #fff;
-      /* base background */
-    }
-
-    input[type="checkbox"]:checked {
-      background-color: #000;
-      /* black background when checked */
-    }
-
-    input[type="checkbox"]:checked::after {
-      content: "\2713";
-      /* white check */
-      color: #fff;
-      font-size: 16px;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    /* Base styles for all divs */
-    .name,
-    .links,
-    .copyright,
-    .shop {
-      font: 11pt Arial, sans-serif;
-      text-transform: uppercase;
-      padding-left: 3ch;
-      padding-top: 3ch;
-
-      user-select: none;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-    }
-
-    .links p {
-      margin: 0;
-    }
-
-    /* For screens wider than 1024px */
-    @media (min-width: 1024px) {
-      .name {
-        position: absolute;
-        left: 0%;
-        top: 0%;
-      }
-
-      .links {
-        position: absolute;
-        left: 25%;
-        top: 0%;
-      }
-
-      .copyright {
-        position: absolute;
-        left: 0%;
-        top: 25%;
-      }
-
-      .shop {
-        position: absolute;
-        left: 25%;
-        top: 25%;
-      }
-    }
-
-    /* For screens under 1024px */
-    @media (max-width: 1023px) {
-
-      .name,
-      .links,
-      .copyright,
-      .shop {
-        font-size: 9pt;
-      }
-
-      .name {
-        position: absolute;
-        left: 0%;
-        top: 0%;
-      }
-
-      .links {
-        position: absolute;
-        left: 50%;
-        top: 0%;
-      }
-
-      .copyright {
-        position: absolute;
-        left: 0%;
-        top: 12.5%;
-      }
-
-      .shop {
-        position: absolute;
-        left: 50%;
-        top: 12.5%;
-      }
-    }
-  </style>
+  <title>EDUARDO ENRIQUE - INRI</title>
+  <link rel="stylesheet" href="./styles.css">
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
@@ -224,9 +38,15 @@
   </div>
   <div class="name">eduardo enrique</div>
   <div class="links">
-    <p>about</p>
-    <p>selected works</p>
-    <p>contact</p>
+    <a target="_blank" href="./about.html">
+      <p>about</p>
+    </a>
+    <a target="_blank" href="./selected-works.html">
+      <p>selected works</p>
+    </a>
+    <a target="_blank" href="./contact.html">
+      <p>contact</p>
+    </a>
   </div>
   <div class="copyright">(c) 2025 all rights reserved</div>
   <div class="shop">shop</div>
