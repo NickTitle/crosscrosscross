@@ -37,18 +37,6 @@ canvas {
     translate: (-50%, -50%);
 }
 
-#about,
-#contact {
-    font: 11pt Arial, sans-serif;
-    text-transform: uppercase;
-    padding: 3ch;
-
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-
 input[type="checkbox"] {
     vertical-align: middle;
 }
