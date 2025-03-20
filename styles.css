@@ -118,6 +118,17 @@ input[type="checkbox"]:checked::after {
     -ms-user-select: none;
 }
 
+.about-content,
+.contact-content {
+    font: 11pt Arial, sans-serif;
+    margin: 3px;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
 .links p {
     margin: 0;
 }
@@ -156,6 +167,22 @@ a:visited {
         left: 25%;
         top: 25%;
     }
+
+    .about-content {
+        position: absolute;
+        left: 50%;
+        top: 25%;
+        width: 50%;
+        overflow-y: scroll;
+        scrollbar-width: 0;
+    }
+
+    .contact-content {
+        position: absolute;
+        left: 50%;
+        top: 0%;
+        width: 25%;
+    }
 }
 
 /* For screens under 1024px */
@@ -190,5 +217,23 @@ a:visited {
         position: absolute;
         left: 50%;
         top: 12.5%;
+    }
+
+    .about-content {
+        font: 9pt Arial, sans-serif;
+        position: absolute;
+        left: 0;
+        top: 25%;
+        width: 100%;
+        overflow-y: scroll;
+        scrollbar-width: 0;
+    }
+
+    .contact-content {
+        font: 9pt Arial, sans-serif;
+        position: absolute;
+        left: 0;
+        top: 25%;
+        width: 100%;
     }
 }

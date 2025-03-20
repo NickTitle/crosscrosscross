@@ -38,18 +38,68 @@
   </div>
   <div class="name">eduardo enrique</div>
   <div class="links">
-    <a target="_blank" href="./about.html">
+    <div id="aboutButton" class="menu-item">
       <p>about</p>
-    </a>
-    <a target="_blank" href="./selected-works.html">
+    </div>
+    <div id="selectedWorksButton" class="menu-item">
       <p>selected works</p>
-    </a>
-    <a target="_blank" href="./contact.html">
+    </div>
+    <div id="contactButton" class="menu-item">
       <p>contact</p>
-    </a>
+    </div>
   </div>
   <div class="copyright">(c) 2025 all rights reserved</div>
   <div class="shop">shop</div>
+  <div id="about" class="about-content hidden">
+    <p>
+      Eduardo Enrique’s practice examines contemporary forms of ideology and the cultural mechanisms through which
+      they are produced, disseminated, and reinforced. Spanning sculptural assemblage, installation, graffiti, and
+      industrial manufacturing, his work explores the intersections of consumer culture and geopolitical power
+      structures. By recontextualizing branded goods and corporate symbols, Enrique exposes how capital abstracts
+      itself into systems of meaning, instrumentalizing consumption to embed and perpetuate social and political
+      structures.
+    </p>
+    <p>
+      A former strategist with a background in advertising and cultural strategy, his practice engages branding as
+      both medium and subject, operating within the very systems it critiques. The ‘Swoosh,’ a recurring motif in
+      his
+      work, serves as a real-time interrogation of cultural power, exposing the ideological inscriptions embedded
+      in
+      everyday commodities and the economic hierarchies they sustain.
+    </p>
+    <p>
+      Eduardo Enrique was born in Venezuela in 1989 and holds a BFA from Parsons The New School for Design. He
+      lives
+      and works between Southeast Asia and the Middle East.
+    </p>
+    <p>
+      <a href="./cv.txt" download>DOWNLOAD CV</a>
+    </p>
+  </div>
+  <div id="contact" class="contact-content hidden">
+    <p>EDUARDO ENRIQUE</p>
+
+    <p>
+      Studio Inquiries:
+      <a href="mailto:contact@eduardoenrique.com">contact@eduardoenrique.com</a>
+    </p>
+
+    <p>
+      Gallery Inquiries:
+      <a href="https://shankay.com">SHANKAY</a> | <a href="mailto:info@shankay.com">info@shankay.com</a>
+    </p>
+
+    <p>
+      <a href="https://www.instagram.com/eduardo_______enrique/">INSTAGRAM</a>
+    </p>
+
+    <p>
+      Subscribe to Mailing List:
+    <p>
+      <button>Subscribe</button> <input placeholder="doesntwork">
+    </p>
+    </p>
+  </div>
   <script>
     // Scene, camera, renderer.
     const scene = new THREE.Scene();
@@ -62,6 +112,8 @@
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
+    let menuActive = false;
+    let originalPitch = camera.rotation.x;
 
     // --- Rain Setup with Pool of Skinny Rectangles ---
     const rainPool = [];
@@ -164,6 +216,11 @@
     const consentBox = document.getElementById('consentBox');
     const iUnderstand = document.getElementById('acknowledge');
     const takeMeBack = document.getElementById('takeMeBack');
+    const aboutButton = document.getElementById('aboutButton');
+    const aboutContent = document.getElementById('about');
+    const contactButton = document.getElementById('contactButton');
+    const contactContent = document.getElementById('contact');
+    const selectedWorksButton = document.getElementById('selectedWorksButton');
     function updateloadingAmt() {
       const pct = ((progressHi + progressMid + progressLow + progressBillboard) / 4) * 100;
       loadingAmt.innerHTML = Math.floor(pct) + "%"
@@ -201,6 +258,33 @@
         document.location = "https://nicktitle.github.io/meadowtext?text=%20"
       })
 
+      aboutButton.addEventListener('click', function () {
+        if (!menuActive) {
+          menuActive = true
+          aboutContent.classList.add('fastHidden');
+          aboutContent.classList.add('fade');
+          aboutContent.classList.remove('hidden');
+        } else {
+          menuActive = false
+          aboutContent.classList.remove('fastHidden');
+          aboutContent.classList.remove('fade');
+          aboutContent.classList.add('hidden');
+        }
+      })
+
+      contactButton.addEventListener('click', function () {
+        if (!menuActive) {
+          menuActive = true
+          contactContent.classList.add('fastHidden');
+          contactContent.classList.add('fade');
+          contactContent.classList.remove('hidden');
+        } else {
+          menuActive = false
+          contactContent.classList.remove('fastHidden');
+          contactContent.classList.remove('fade');
+          contactContent.classList.add('hidden');
+        }
+      })
 
       batLowModel = gltfLow.scene;
       batMidModel = gltfMid.scene;
@@ -312,7 +396,7 @@
       let forwardVel = 0, rotationVel = 0, isDragging = false, prevX = 0, prevY = 0;
       function onDragStart(x, y) { isDragging = true; prevX = x; prevY = y; }
       function onDragMove(x, y) {
-        if (!isDragging) return;
+        if (!isDragging || menuActive) return;
         const deltaX = x - prevX, deltaY = y - prevY;
         rotationVel = deltaX * 0.0025;
         forwardVel = deltaY * 0.01;
@@ -328,7 +412,7 @@
       let touchMoved = false;
       const dragThreshold = 5;
       function handleTouchStart(e) {
-        if (e.touches.length === 1) {
+        if (e.touches.length === 1 && !menuActive) {
           const touch = e.touches[0];
           touchStartX = touch.clientX;
           touchStartY = touch.clientY;
@@ -337,7 +421,7 @@
         }
       }
       function handleTouchMove(e) {
-        if (e.touches.length === 1) {
+        if (e.touches.length === 1 && !menuActive) {
           const touch = e.touches[0];
           const dx = touch.clientX - touchStartX;
           const dy = touch.clientY - touchStartY;
@@ -370,6 +454,10 @@
         const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation).normalize();
         camera.position.addScaledVector(forwardDir, forwardVel);
         camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
+
+        const targetPitch = menuActive ? Math.PI / 2 : originalPitch;
+        const lerpFactor = 0.02; // Adjust for panning speed
+        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, targetPitch, lerpFactor);
 
         updateTiles();
         updateBatPositions();
