@@ -128,6 +128,7 @@
       const drop = new THREE.Mesh(geometry, material);
       // Rotate so the long side is vertical.
       drop.rotation.y = -Math.PI / 2;
+      drop.material.transparent = true;
       return drop;
     }
 
@@ -143,6 +144,11 @@
 
     function updateRainDrops(delta) {
       for (let drop of rainPool) {
+        if (menuActive && drop.material.opacity > 0.0) {
+          drop.material.opacity -= 0.05
+        } else if (!menuActive && drop.material.opacity < 1.0) {
+          drop.material.opacity += 0.05
+        }
         drop.position.y -= rainSpeed * delta;
 
         // Reposition if the drop falls below the lower boundary relative to the camera.
@@ -303,7 +309,7 @@
           showAbout(true);
           showContact(false);
         } else {
-          showMenu(false)
+          showMenu(false);
         }
       });
 
