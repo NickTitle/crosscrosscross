@@ -11,7 +11,7 @@
 </head>
 
 <body>
-
+  <div id="menuCatcher" class="hidden"></div>
   <div id="loadingScreen">
     <div id="disclaimer" class="menuText">
       <p>This work critically engages with the Nike Swoosh as a cultural symbol and is
@@ -221,6 +221,7 @@
     const contactButton = document.getElementById('contactButton');
     const contactContent = document.getElementById('contact');
     const selectedWorksButton = document.getElementById('selectedWorksButton');
+    const menuCatcher = document.getElementById('menuCatcher');
     function updateloadingAmt() {
       const pct = ((progressHi + progressMid + progressLow + progressBillboard) / 4) * 100;
       loadingAmt.innerHTML = Math.floor(pct) + "%"
@@ -285,28 +286,39 @@
         return elem.classList.contains('focused');
       }
 
+      function showMenu(shouldShow) {
+        menuActive = shouldShow;
+        if (shouldShow) {
+          menuCatcher.classList.remove('hidden');
+        } else {
+          menuCatcher.classList.add('hidden');
+          showAbout(false);
+          showContact(false);
+        }
+      }
+
       aboutButton.addEventListener('click', function () {
         if (!isFocused(aboutButton)) {
-          menuActive = true;
+          showMenu(true);
           showAbout(true);
           showContact(false);
         } else {
-          menuActive = false;
-          showAbout(false);
-          showContact(false);
+          showMenu(false)
         }
       });
 
       contactButton.addEventListener('click', function () {
         if (!isFocused(contactButton)) {
-          menuActive = true;
+          showMenu(true);
           showContact(true);
           showAbout(false);
         } else {
-          menuActive = false;
-          showAbout(false);
-          showContact(false);
+          showMenu(false);
         }
+      })
+
+      menuCatcher.addEventListener('click', function () {
+        showMenu(false);
       })
 
       batLowModel = gltfLow.scene;
