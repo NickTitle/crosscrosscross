@@ -118,8 +118,16 @@ input[type="checkbox"]:checked::after {
     -ms-user-select: none;
 }
 
-.about-content,
-.contact-content {
+.menuItem:hover {
+    font-weight: 900;
+}
+
+.menuItem.focused {
+    font-weight: 900;
+}
+
+.aboutContent,
+.contactContent {
     font: 11pt Arial, sans-serif;
     margin: 3px;
 
@@ -140,6 +148,10 @@ a {
 
 a:visited {
     text-decoration: none;
+}
+
+.contactContent a:hover {
+    font-weight: 900;
 }
 
 /* For screens wider than 1024px */
@@ -168,7 +180,7 @@ a:visited {
         top: 25%;
     }
 
-    .about-content {
+    .aboutContent {
         position: absolute;
         left: 50%;
         top: 25%;
@@ -177,7 +189,7 @@ a:visited {
         scrollbar-width: 0;
     }
 
-    .contact-content {
+    .contactContent {
         position: absolute;
         left: 50%;
         top: 0%;
@@ -219,7 +231,7 @@ a:visited {
         top: 12.5%;
     }
 
-    .about-content {
+    .aboutContent {
         font: 9pt Arial, sans-serif;
         position: absolute;
         left: 0;
@@ -229,7 +241,7 @@ a:visited {
         scrollbar-width: 0;
     }
 
-    .contact-content {
+    .contactContent {
         font: 9pt Arial, sans-serif;
         position: absolute;
         left: 0;

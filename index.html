@@ -38,19 +38,19 @@
   </div>
   <div class="name">eduardo enrique</div>
   <div class="links">
-    <div id="aboutButton" class="menu-item">
+    <div id="aboutButton" class="menuItem">
       <p>about</p>
     </div>
-    <div id="selectedWorksButton" class="menu-item">
+    <div id="selectedWorksButton" class="menuItem">
       <p>selected works</p>
     </div>
-    <div id="contactButton" class="menu-item">
+    <div id="contactButton" class="menuItem">
       <p>contact</p>
     </div>
   </div>
   <div class="copyright">(c) 2025 all rights reserved</div>
-  <div class="shop">shop</div>
-  <div id="about" class="about-content hidden">
+  <div class="shop" class="menuItem">shop</div>
+  <div id="about" class="aboutContent hidden">
     <p>
       Eduardo Enrique’s practice examines contemporary forms of ideology and the cultural mechanisms through which
       they are produced, disseminated, and reinforced. Spanning sculptural assemblage, installation, graffiti, and
@@ -76,7 +76,7 @@
       <a href="./cv.txt" download>DOWNLOAD CV</a>
     </p>
   </div>
-  <div id="contact" class="contact-content hidden">
+  <div id="contact" class="contactContent hidden">
     <p>EDUARDO ENRIQUE</p>
 
     <p>
@@ -258,31 +258,52 @@
         document.location = "https://nicktitle.github.io/meadowtext?text=%20"
       })
 
-      aboutButton.addEventListener('click', function () {
-        if (!menuActive) {
-          menuActive = true
-          aboutContent.classList.add('fastHidden');
-          aboutContent.classList.add('fade');
-          aboutContent.classList.remove('hidden');
+      function showMenuItem(button, content, shouldShow = true) {
+        if (shouldShow) {
+          menuActive = true;
+          button.classList.add('focused');
+          content.classList.add('fastHidden');
+          content.classList.add('fade');
+          content.classList.remove('hidden');
         } else {
-          menuActive = false
-          aboutContent.classList.remove('fastHidden');
-          aboutContent.classList.remove('fade');
-          aboutContent.classList.add('hidden');
+          button.classList.remove('focused');
+          content.classList.remove('fastHidden');
+          content.classList.remove('fade');
+          content.classList.add('hidden');
         }
-      })
+      }
+
+      function showAbout(shouldShow = true) {
+        showMenuItem(aboutButton, aboutContent, shouldShow);
+      }
+
+      function showContact(shouldShow = true) {
+        showMenuItem(contactButton, contactContent, shouldShow);
+      }
+
+      function isFocused(elem) {
+        return elem.classList.contains('focused');
+      }
+
+      aboutButton.addEventListener('click', function () {
+        if (!isFocused(aboutButton)) {
+          menuActive = true;
+          showAbout(true);
+          showContact(false);
+        } else {
+          menuActive = false;
+          showAbout(false);
+        }
+      });
 
       contactButton.addEventListener('click', function () {
-        if (!menuActive) {
-          menuActive = true
-          contactContent.classList.add('fastHidden');
-          contactContent.classList.add('fade');
-          contactContent.classList.remove('hidden');
+        if (!isFocused(contactButton)) {
+          menuActive = true;
+          showContact(true);
+          showAbout(false);
         } else {
-          menuActive = false
-          contactContent.classList.remove('fastHidden');
-          contactContent.classList.remove('fade');
-          contactContent.classList.add('hidden');
+          menuActive = false;
+          showContact(false);
         }
       })
 
