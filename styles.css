@@ -150,6 +150,7 @@ a:visited {
     text-decoration: none;
 }
 
+.aboutContent a:hover,
 .contactContent a:hover {
     font-weight: 900;
 }
