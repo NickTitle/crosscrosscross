@@ -23,6 +23,7 @@ canvas {
 
 #disclaimer {
     position: absolute;
+    text-align: justify;
     top: 50%;
     left: 50%;
     margin-right: -50%;
@@ -50,7 +51,7 @@ input[type="checkbox"] {
     color: #fff;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: lighter;
-    font-size: 10px;
+    font-size: 11pt;
 }
 
 .fastHidden {
@@ -134,12 +135,16 @@ input[type="checkbox"]:checked::after {
 .aboutContent,
 .contactContent {
     font: 11pt Arial, sans-serif;
-    margin: 3px;
+    padding: 2em;
 
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+}
+
+.aboutContent {
+    text-align: justify;
 }
 
 .links p {
@@ -190,7 +195,6 @@ a:visited {
         position: absolute;
         left: 50%;
         top: 25%;
-        width: 50%;
         overflow-y: scroll;
         scrollbar-width: 0;
     }
@@ -209,7 +213,8 @@ a:visited {
     .name,
     .links,
     .copyright,
-    .shop {
+    .shop,
+    #disclaimer {
         font-size: 9pt;
     }
 
@@ -242,7 +247,6 @@ a:visited {
         position: absolute;
         left: 0;
         top: 25%;
-        width: 100%;
         overflow-y: scroll;
         scrollbar-width: 0;
     }
