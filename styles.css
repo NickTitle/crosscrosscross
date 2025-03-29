@@ -51,7 +51,7 @@ input[type="checkbox"] {
     color: #fff;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: lighter;
-    font-size: 11pt;
+    font-size: 9pt;
 }
 
 .fastHidden {
@@ -64,6 +64,10 @@ input[type="checkbox"] {
     visibility: hidden;
     opacity: 0;
     transition: visibility 0s 2s, opacity 2s linear;
+}
+
+#menuContent.hidden {
+    transition: none;
 }
 
 .fade {
@@ -113,8 +117,7 @@ input[type="checkbox"]:checked::after {
 .links,
 .copyright,
 .shop {
-    font: 11pt Arial, sans-serif;
-    text-transform: uppercase;
+    font: 9pt Arial, sans-serif;
     padding-left: 3ch;
     padding-top: 3ch;
 
@@ -122,6 +125,13 @@ input[type="checkbox"]:checked::after {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+}
+
+/* Base styles for all divs */
+.name,
+.links,
+.shop {
+    text-transform: uppercase;
 }
 
 .menuItem:hover {
@@ -134,8 +144,8 @@ input[type="checkbox"]:checked::after {
 
 .aboutContent,
 .contactContent {
-    font: 11pt Arial, sans-serif;
-    padding: 2em;
+    font: 9pt Arial, sans-serif;
+    margin: 3px;
 
     user-select: none;
     -webkit-user-select: none;

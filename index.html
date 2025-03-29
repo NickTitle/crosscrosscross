@@ -48,57 +48,59 @@
       <p>contact</p>
     </div>
   </div>
-  <div class="copyright">(c) 2025 all rights reserved</div>
+  <div class="copyright">&copy; 2025 All Rights Reserved</div>
   <div class="shop" class="menuItem">shop</div>
-  <div id="about" class="aboutContent hidden">
-    <p>
-      Eduardo Enrique’s practice examines contemporary forms of ideology and the cultural mechanisms through which
-      they are produced, disseminated, and reinforced. Spanning sculptural assemblage, installation, graffiti, and
-      industrial manufacturing, his work explores the intersections of consumer culture and geopolitical power
-      structures. By recontextualizing branded goods and corporate symbols, Enrique exposes how capital abstracts
-      itself into systems of meaning, instrumentalizing consumption to embed and perpetuate social and political
-      structures.
-    </p>
-    <p>
-      A former strategist with a background in advertising and cultural strategy, his practice engages branding as
-      both medium and subject, operating within the very systems it critiques. The ‘Swoosh,’ a recurring motif in
-      his
-      work, serves as a real-time interrogation of cultural power, exposing the ideological inscriptions embedded
-      in
-      everyday commodities and the economic hierarchies they sustain.
-    </p>
-    <p>
-      Eduardo Enrique was born in Venezuela in 1989 and holds a BFA from Parsons The New School for Design. He
-      lives
-      and works between Southeast Asia and the Middle East.
-    </p>
-    <p>
-      <a href="./cv.txt" download>DOWNLOAD CV</a>
-    </p>
-  </div>
-  <div id="contact" class="contactContent hidden">
-    <p>EDUARDO ENRIQUE</p>
+  <div id="menuContent" class="hidden">
+    <div id="about" class="aboutContent hidden">
+      <p>
+        Eduardo Enrique’s practice examines contemporary forms of ideology and the cultural mechanisms through which
+        they are produced, disseminated, and reinforced. Spanning sculptural assemblage, installation, graffiti, and
+        industrial manufacturing, his work explores the intersections of consumer culture and geopolitical power
+        structures. By recontextualizing branded goods and corporate symbols, Enrique exposes how capital abstracts
+        itself into systems of meaning, instrumentalizing consumption to embed and perpetuate social and political
+        structures.
+      </p>
+      <p>
+        A former strategist with a background in advertising and cultural strategy, his practice engages branding as
+        both medium and subject, operating within the very systems it critiques. The ‘Swoosh,’ a recurring motif in
+        his
+        work, serves as a real-time interrogation of cultural power, exposing the ideological inscriptions embedded
+        in
+        everyday commodities and the economic hierarchies they sustain.
+      </p>
+      <p>
+        Eduardo Enrique was born in Venezuela in 1989 and holds a BFA from Parsons The New School for Design. He
+        lives
+        and works between Southeast Asia and the Middle East.
+      </p>
+      <p>
+        <a href="./cv.txt" download>DOWNLOAD CV</a>
+      </p>
+    </div>
+    <div id="contact" class="contactContent hidden">
+      <p>EDUARDO ENRIQUE</p>
 
-    <p>
-      Studio Inquiries:
-      <a href="mailto:contact@eduardoenrique.com">contact@eduardoenrique.com</a>
-    </p>
+      <p>
+        Studio Inquiries:
+        <a href="mailto:contact@eduardoenrique.com">contact@eduardoenrique.com</a>
+      </p>
 
-    <p>
-      Gallery Inquiries:
-      <a href="https://shankay.com">SHANKAY</a> | <a href="mailto:info@shankay.com">info@shankay.com</a>
-    </p>
+      <p>
+        Gallery Inquiries:
+        <a href="https://shankay.com">SHANKAY</a> | <a href="mailto:info@shankay.com">info@shankay.com</a>
+      </p>
 
-    <p>
-      <a href="https://www.instagram.com/eduardo_______enrique/">INSTAGRAM</a>
-    </p>
+      <p>
+        <a href="https://www.instagram.com/eduardo_______enrique/">INSTAGRAM</a>
+      </p>
 
-    <p>
-      Subscribe to Mailing List:
-    <p>
-      <button>Subscribe</button> <input placeholder="doesntwork">
-    </p>
-    </p>
+      <p>
+        Subscribe to Mailing List:
+      <p>
+        <input placeholder="doesntwork"> <button>Subscribe</button>
+      </p>
+      </p>
+    </div>
   </div>
   <script>
     // Scene, camera, renderer.
@@ -228,6 +230,7 @@
     const contactContent = document.getElementById('contact');
     const selectedWorksButton = document.getElementById('selectedWorksButton');
     const menuCatcher = document.getElementById('menuCatcher');
+    const menuContent = document.getElementById('menuContent');
     function updateloadingAmt() {
       const pct = ((progressHi + progressMid + progressLow + progressBillboard) / 4) * 100;
       loadingAmt.innerHTML = Math.floor(pct) + "%"
@@ -269,13 +272,9 @@
         if (shouldShow) {
           menuActive = true;
           button.classList.add('focused');
-          content.classList.add('fastHidden');
-          content.classList.add('fade');
           content.classList.remove('hidden');
         } else {
           button.classList.remove('focused');
-          content.classList.remove('fastHidden');
-          content.classList.remove('fade');
           content.classList.add('hidden');
         }
       }
@@ -296,8 +295,12 @@
         menuActive = shouldShow;
         if (shouldShow) {
           menuCatcher.classList.remove('hidden');
+          menuContent.classList.add('fastHidden');
+          menuContent.classList.add('fade');
         } else {
           menuCatcher.classList.add('hidden');
+          menuContent.classList.remove('fastHidden');
+          menuContent.classList.remove('fade');
           showAbout(false);
           showContact(false);
         }
@@ -305,7 +308,9 @@
 
       aboutButton.addEventListener('click', function () {
         if (!isFocused(aboutButton)) {
-          showMenu(true);
+          if (!menuActive) {
+            showMenu(true);
+          }
           showAbout(true);
           showContact(false);
         } else {
@@ -315,7 +320,9 @@
 
       contactButton.addEventListener('click', function () {
         if (!isFocused(contactButton)) {
-          showMenu(true);
+          if (!menuActive) {
+            showMenu(true);
+          }
           showContact(true);
           showAbout(false);
         } else {
@@ -491,14 +498,40 @@
         lastTime = currentTime;
 
         // Update camera movement.
-        camera.rotation.y += rotationVel;
-        const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation).normalize();
+        // camera.rotation.y += rotationVel;
+        // const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation).normalize();
+        // camera.position.addScaledVector(forwardDir, forwardVel);
+        // camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
+
+        // Initialize yaw and pitch if not already set.
+        if (camera.userData.yaw === undefined) {
+          const initialEuler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+          camera.userData.yaw = initialEuler.y;
+          camera.userData.pitch = initialEuler.x;
+        }
+
+        const lerpFactor = 0.05; // Adjust for panning speed
+
+        // Update yaw (rotation around the Y-axis).
+        camera.userData.yaw += rotationVel;
+
+        // Determine target pitch.
+        const targetPitch = menuActive ? Math.PI / 2 : originalPitch;
+
+        // Lerp the pitch to smoothly interpolate.
+        camera.userData.pitch = THREE.MathUtils.lerp(camera.userData.pitch, targetPitch, lerpFactor);
+
+        // Rebuild the quaternion from yaw and pitch (with roll set to 0).
+        const newEuler = new THREE.Euler(camera.userData.pitch, camera.userData.yaw, 0, 'YXZ');
+        camera.quaternion.setFromEuler(newEuler);
+
+        // Calculate the forward direction based on the updated quaternion.
+        const forwardDir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize();
         camera.position.addScaledVector(forwardDir, forwardVel);
+
+        // Adjust the height based on terrain.
         camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
 
-        const targetPitch = menuActive ? Math.PI / 2 : originalPitch;
-        const lerpFactor = 0.02; // Adjust for panning speed
-        camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, targetPitch, lerpFactor);
 
         updateTiles();
         updateBatPositions();
