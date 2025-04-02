@@ -259,9 +259,13 @@
       consentBox.classList.remove('hidden');
 
       iUnderstand.addEventListener('click', function () {
-        loadingAmt.classList.add('fastHidden');
-        const loaderElem = document.getElementById('loadingScreen').classList.add('hidden');
-        if (loaderElem) loaderElem.remove();
+        loadingAmt.classList.add('hidden');
+        const loaderElem = document.getElementById('loadingScreen');
+        loaderElem.classList.add('hiddenLoader');
+        loaderElem.addEventListener('animationend', () => {
+          loaderElem.remove()
+        });
+
       });
 
       takeMeBack.addEventListener('click', function () {
@@ -301,8 +305,8 @@
           menuCatcher.classList.add('hidden');
           menuContent.classList.remove('fastHidden');
           menuContent.classList.remove('fade');
-          showAbout(false);
-          showContact(false);
+          aboutButton.classList.remove('focused');
+          contactButton.classList.remove('focused');
         }
       }
 

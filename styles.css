@@ -13,6 +13,11 @@ canvas {
     height: 100%;
     background-color: #000;
     overflow: hidden;
+    transition: opacity 0.5s ease;
+}
+
+#loadingScreen.hiddenLoader {
+    opacity: 0;
 }
 
 #menuCatcher {
@@ -63,11 +68,6 @@ input[type="checkbox"] {
 .hidden {
     visibility: hidden;
     opacity: 0;
-    transition: visibility 0s 2s, opacity 2s linear;
-}
-
-#menuContent.hidden {
-    transition: none;
 }
 
 .fade {
