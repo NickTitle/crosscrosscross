@@ -49,7 +49,7 @@
     </div>
   </div>
   <div class="copyright">&copy; 2025 All Rights Reserved</div>
-  <div class="shop" class="menuItem">shop</div>
+  <div id="shopButton" class="shop menuItem">shop</div>
   <div id="menuContent" class="hidden">
     <div id="about" class="aboutContent hidden">
       <p>
@@ -231,6 +231,7 @@
     const selectedWorksButton = document.getElementById('selectedWorksButton');
     const menuCatcher = document.getElementById('menuCatcher');
     const menuContent = document.getElementById('menuContent');
+    const shopButton = document.getElementById('shopButton');
     function updateloadingAmt() {
       const pct = ((progressHi + progressMid + progressLow + progressBillboard) / 4) * 100;
       loadingAmt.innerHTML = Math.floor(pct) + "%"
@@ -336,6 +337,13 @@
 
       menuCatcher.addEventListener('click', function () {
         showMenu(false);
+      })
+
+      shopButton.addEventListener('click', function () {
+        shopLink = document.createElement('a');
+        shopLink.target = '_blank'
+        shopLink.href = 'https://www.artsy.net/artwork/eduardo-enrique-untitled'
+        shopLink.click()
       })
 
       batLowModel = gltfLow.scene;
