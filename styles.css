@@ -175,6 +175,22 @@ a:visited {
     font-weight: 900;
 }
 
+
+#subscribeHolder {
+    width: 100%;
+    max-width: 256px;
+}
+
+#subscribeInput {
+    width: 100%;
+}
+
+#subscribeButton {
+    justify-self: right;
+    margin-top: 8px;
+    margin-right: -8px;
+}
+
 /* For screens wider than 1024px */
 @media (min-width: 1024px) {
     .name {

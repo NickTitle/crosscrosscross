@@ -96,9 +96,14 @@
 
       <p>
         Subscribe to Mailing List:
-      <p>
-        <input placeholder="doesntwork"> <button>Subscribe</button>
-      </p>
+      <div id="subscribeHolder">
+        <form id="subscribe-form"
+          action="https://docs.google.com/forms/d/e/1FAIpQLSdhJTMDjMsLERzpJPzp8CE2jZSDF-3L72PmF32Zf653KKL6VQ/formResponse"
+          method="post">
+          <input type="email" id="subscribeInput" name="entry.204415219" required>
+        </form>
+        <div id="subscribeButton" class="menuItem">SEND</div>
+      </div>
       </p>
     </div>
   </div>
@@ -345,6 +350,34 @@
         shopLink.href = 'https://www.artsy.net/artwork/eduardo-enrique-untitled'
         shopLink.click()
       })
+
+      submitForm = function () {
+        var form = document.getElementById('subscribe-form');
+        var formData = new FormData(form);
+
+        fetch(form.action, {
+          method: form.method,
+          mode: 'no-cors', // required for cross-origin requests like Google Forms
+          body: formData
+        })
+          .then(function () {
+            document.getElementById('subscribeInput').value = '';
+          })
+          .catch(function (error) {
+            console.error('Error submitting form:', error);
+          });
+      }
+
+      subscribeButton.addEventListener('click', function () {
+        submitForm();
+      })
+
+      document.getElementById('subscribeInput').addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          submitForm();
+        }
+      });
 
       batLowModel = gltfLow.scene;
       batMidModel = gltfMid.scene;
