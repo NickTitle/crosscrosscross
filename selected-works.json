@@ -1,0 +1,39 @@
+{
+  "works": [
+    {
+      "filename": "1.jpg",
+      "title": "title goes here",
+      "medium": "medium medium",
+      "size": "size here",
+      "year": "2077"
+    },
+    {
+      "filename": "2.jpg",
+      "title": "title goes here",
+      "medium": "medium medium",
+      "size": "size here",
+      "year": "2077"
+    },
+    {
+      "filename": "3.jpg",
+      "title": "title goes here",
+      "medium": "medium medium",
+      "size": "size here",
+      "year": "2077"
+    },
+    {
+      "filename": "4.jpg",
+      "title": "title goes here",
+      "medium": "medium medium",
+      "size": "size here",
+      "year": "2077"
+    },
+    {
+      "filename": "5.jpg",
+      "title": "title goes here",
+      "medium": "medium medium",
+      "size": "size here",
+      "year": "2077"
+    }
+  ]
+}

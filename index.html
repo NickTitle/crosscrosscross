@@ -107,6 +107,12 @@
       </p>
     </div>
   </div>
+  <div id="selectedWorks" class="hidden">
+    <div id="worksCol1">
+      <div id="selectedWorksColumnBuffer"></div>
+    </div>
+    <div id="worksCol2"></div>
+  </div>
   <script>
     // Scene, camera, renderer.
     const scene = new THREE.Scene();
@@ -234,9 +240,11 @@
     const contactButton = document.getElementById('contactButton');
     const contactContent = document.getElementById('contact');
     const selectedWorksButton = document.getElementById('selectedWorksButton');
+    const selectedWorksContent = document.getElementById('selectedWorks');
     const menuCatcher = document.getElementById('menuCatcher');
     const menuContent = document.getElementById('menuContent');
     const shopButton = document.getElementById('shopButton');
+    const buffer = document.getElementById('selectedWorksColumnBuffer');
     function updateloadingAmt() {
       const pct = ((progressHi + progressMid + progressLow + progressBillboard) / 4) * 100;
       loadingAmt.innerHTML = Math.floor(pct) + "%"
@@ -297,6 +305,10 @@
         showMenuItem(contactButton, contactContent, shouldShow);
       }
 
+      function showSelectedWorks(shouldShow = true) {
+        showMenuItem(selectedWorksButton, selectedWorksContent, shouldShow);
+      }
+
       function isFocused(elem) {
         return elem.classList.contains('focused');
       }
@@ -307,12 +319,22 @@
           menuCatcher.classList.remove('hidden');
           menuContent.classList.add('fastHidden');
           menuContent.classList.add('fade');
+
+          menuCatcher.classList.remove('hidden');
+          selectedWorksContent.classList.add('fastHidden');
+          selectedWorksContent.classList.add('fade');
         } else {
           menuCatcher.classList.add('hidden');
           menuContent.classList.remove('fastHidden');
           menuContent.classList.remove('fade');
+
+          selectedWorksContent.classList.add('hidden');
+          selectedWorksContent.classList.remove('fastHidden');
+          selectedWorksContent.classList.remove('fade');
+
           aboutButton.classList.remove('focused');
           contactButton.classList.remove('focused');
+          selectedWorksButton.classList.remove('focused');
         }
       }
 
@@ -323,6 +345,7 @@
           }
           showAbout(true);
           showContact(false);
+          showSelectedWorks(false);
         } else {
           showMenu(false);
         }
@@ -335,6 +358,20 @@
           }
           showContact(true);
           showAbout(false);
+          showSelectedWorks(false);
+        } else {
+          showMenu(false);
+        }
+      })
+
+      selectedWorksButton.addEventListener('click', function () {
+        if (!isFocused(selectedWorksButton)) {
+          if (!menuActive) {
+            showMenu(true);
+          }
+          showSelectedWorks(true);
+          showAbout(false);
+          showContact(false);
         } else {
           showMenu(false);
         }
@@ -377,6 +414,10 @@
           event.preventDefault();
           submitForm();
         }
+      });
+
+      buffer.addEventListener('click', function () {
+        showMenu(false);
       });
 
       batLowModel = gltfLow.scene;
@@ -542,12 +583,6 @@
         delta = Math.min(delta, 0.1);
         lastTime = currentTime;
 
-        // Update camera movement.
-        // camera.rotation.y += rotationVel;
-        // const forwardDir = new THREE.Vector3(0, 0, -1).applyEuler(camera.rotation).normalize();
-        // camera.position.addScaledVector(forwardDir, forwardVel);
-        // camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
-
         // Initialize yaw and pitch if not already set.
         if (camera.userData.yaw === undefined) {
           const initialEuler = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
@@ -594,6 +629,68 @@
       });
       updateTiles();
     }).catch(err => console.error('Error loading models:', err));
+
+    const worksCol1 = document.getElementById('worksCol1');
+    const worksCol2 = document.getElementById('worksCol2');
+
+    let works = [];
+
+    function rearrangeWorks() {
+      // Clear columns.
+      worksCol1.innerHTML = '';
+      if (buffer) {
+        worksCol1.appendChild(buffer);
+      }
+      worksCol2.innerHTML = '';
+
+      // Check viewport width to decide layout.
+      if (window.innerWidth < 1024) {
+        // For skinny screens, put all items in worksCol1.
+        buffer.style.height = `${(window.innerHeight / 8) + 32}px`;
+        works.forEach(item => worksCol1.appendChild(item));
+      } else {
+        buffer.style.height = `${(window.innerHeight / 4) + 32}px`;
+        // For wider screens, alternate
+        // items between the two columns.
+        works.forEach((item, index) => {
+          if (index % 2 === 0) {
+            worksCol1.appendChild(item);
+          } else {
+            worksCol2.appendChild(item);
+          }
+        });
+      }
+    }
+
+    fetch('selected-works.json')
+      .then(response => response.json())
+      .then(data => {
+        data.works.forEach(work => {
+          // Create a container for each work item.
+          const workElem = document.createElement('div');
+          workElem.className = 'workItem';
+
+          // Attach metadata as data attributes.
+          workElem.dataset.title = work.title;
+          workElem.dataset.medium = work.medium;
+          workElem.dataset.size = work.size;
+          workElem.dataset.year = work.year;
+
+          // Create an image element and set its source.
+          const img = document.createElement('img');
+          img.src = `works/${work.filename}`;
+          img.alt = work.title;
+
+          // Append the image to the container.
+          workElem.appendChild(img);
+          works.push(workElem);
+        });
+
+        rearrangeWorks();
+      })
+      .catch(error => console.error('Error loading selected-works.json:', error));
+
+    window.addEventListener('resize', rearrangeWorks);
   </script>
 </body>
 
