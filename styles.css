@@ -214,11 +214,18 @@ a:visited {
 
 .workItem {
     padding: 8px;
+    background-color: #e8e8e8;
 }
 
 .workItem img {
     height: auto;
     width: 100%;
+}
+
+.dataBlock {
+    margin-top: 3px;
+    font: 9pt Arial, sans-serif;
+    text-transform: uppercase;
 }
 
 /* For screens wider than 1024px */

@@ -37,7 +37,7 @@
     <div id="loadingAmt" class="menuText"></div>
   </div>
   <div class="name">eduardo enrique</div>
-  <div class="links">
+  <div id="links" class="links">
     <div id="aboutButton" class="menuItem">
       <p>about</p>
     </div>
@@ -653,7 +653,7 @@
         // For wider screens, alternate
         // items between the two columns.
         works.forEach((item, index) => {
-          if (index % 2 === 0) {
+          if (index % 2 === 1) {
             worksCol1.appendChild(item);
           } else {
             worksCol2.appendChild(item);
@@ -683,6 +683,16 @@
 
           // Append the image to the container.
           workElem.appendChild(img);
+
+          const dataBlock = document.createElement('div');
+          dataBlock.className = 'dataBlock';
+          dataBlock.innerHTML =
+            work.title + "</br>" +
+            work.medium + "</br>" +
+            work.size + "</br>" +
+            work.year
+          workElem.appendChild(dataBlock);
+
           works.push(workElem);
         });
 
@@ -691,6 +701,24 @@
       .catch(error => console.error('Error loading selected-works.json:', error));
 
     window.addEventListener('resize', rearrangeWorks);
+
+    window.addEventListener('scroll', (function () {
+      console.log("scrolling")
+      let timeout = null;
+      return function () {
+        if (timeout) return;
+        if (!buffer) return;
+        const bufferHeight = buffer.offsetHeight;
+        if (window.pageYOffset > bufferHeight) {
+          console.log("scrolled too far!")
+          document.getElementById('links').style.opacity = "0.001";
+        } else {
+          console.log("not very scrolled")
+          document.getElementById('links').style.opacity = "1";
+        }
+        timeout = setTimeout(() => { timeout = null; }, 100);
+      };
+    })());
   </script>
 </body>
 
