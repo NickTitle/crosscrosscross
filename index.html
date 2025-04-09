@@ -307,6 +307,13 @@
 
       function showSelectedWorks(shouldShow = true) {
         showMenuItem(selectedWorksButton, selectedWorksContent, shouldShow);
+        document.querySelectorAll('.workItem').forEach(element => {
+          if (shouldShow) {
+            element.style.display = '';
+          } else {
+            element.style.display = 'none';
+          }
+        });
       }
 
       function isFocused(elem) {
