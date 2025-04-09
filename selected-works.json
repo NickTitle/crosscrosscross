@@ -34,6 +34,13 @@
       "medium": "medium medium",
       "size": "size here",
       "year": "2077"
+    },
+    {
+      "filename": "6.jpg",
+      "title": "title goes here",
+      "medium": "medium medium",
+      "size": "size here",
+      "year": "2077"
     }
   ]
 }
