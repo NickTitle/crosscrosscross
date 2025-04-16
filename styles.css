@@ -228,6 +228,18 @@ a:visited {
     text-transform: uppercase;
 }
 
+#headerBox {
+    position: absolute;
+    width: 100%;
+}
+
+.shop,
+.copyright {
+    position: absolute;
+    top: 100%;
+    margin-top: -50px;
+}
+
 /* For screens wider than 1024px */
 @media (min-width: 1024px) {
     .name {
@@ -243,15 +255,11 @@ a:visited {
     }
 
     .copyright {
-        position: absolute;
         left: 0%;
-        top: 25%;
     }
 
     .shop {
-        position: absolute;
         left: 25%;
-        top: 25%;
     }
 
     .aboutContent {
@@ -269,9 +277,8 @@ a:visited {
         width: 25%;
     }
 
-    #selectedWorksColumnBuffer {
+    #headerBox {
         height: 25%;
-        width: 100%;
     }
 }
 
@@ -298,16 +305,8 @@ a:visited {
         top: 0%;
     }
 
-    .copyright {
-        position: absolute;
-        left: 0%;
-        top: 12.5%;
-    }
-
     .shop {
-        position: absolute;
         left: 50%;
-        top: 12.5%;
     }
 
     .aboutContent {
@@ -331,12 +330,12 @@ a:visited {
         grid-template-columns: 1fr;
     }
 
-    #selectedWorksColumnBuffer {
-        height: 12.5%;
-        width: 100%;
-    }
-
     #worksCol1 {
         width: 100%;
+        margin-top: 12.5%;
+    }
+
+    #headerBox {
+        height: 12.5%;
     }
 }

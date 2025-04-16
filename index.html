@@ -36,20 +36,23 @@
     </div>
     <div id="loadingAmt" class="menuText"></div>
   </div>
-  <div class="name">eduardo enrique</div>
-  <div id="links" class="links">
-    <div id="aboutButton" class="menuItem">
-      <p>about</p>
+
+  <div id="headerBox">
+    <div class="name">eduardo enrique</div>
+    <div id="links" class="links">
+      <div id="aboutButton" class="menuItem">
+        <p>about</p>
+      </div>
+      <div id="selectedWorksButton" class="menuItem">
+        <p>selected works</p>
+      </div>
+      <div id="contactButton" class="menuItem">
+        <p>contact</p>
+      </div>
     </div>
-    <div id="selectedWorksButton" class="menuItem">
-      <p>selected works</p>
-    </div>
-    <div id="contactButton" class="menuItem">
-      <p>contact</p>
-    </div>
+    <div class="copyright">&copy; 2025 All Rights Reserved</div>
+    <div id="shopButton" class="shop menuItem">shop</div>
   </div>
-  <div class="copyright">&copy; 2025 All Rights Reserved</div>
-  <div id="shopButton" class="shop menuItem">shop</div>
   <div id="menuContent" class="hidden">
     <div id="about" class="aboutContent hidden">
       <p>
@@ -108,12 +111,14 @@
     </div>
   </div>
   <div id="selectedWorks" class="hidden">
-    <div id="worksCol1">
-      <div id="selectedWorksColumnBuffer"></div>
-    </div>
+    <div id="worksCol1"></div>
     <div id="worksCol2"></div>
   </div>
   <script>
+    function isFocused(elem) {
+      return elem.classList.contains('focused');
+    }
+
     // Scene, camera, renderer.
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xE8E8E8);
@@ -244,7 +249,12 @@
     const menuCatcher = document.getElementById('menuCatcher');
     const menuContent = document.getElementById('menuContent');
     const shopButton = document.getElementById('shopButton');
-    const buffer = document.getElementById('selectedWorksColumnBuffer');
+
+    const headerBox = document.getElementById('headerBox');
+    const headerBoxOriginalParent = headerBox.parentElement;
+    const headerBoxOriginalSibling = headerBox.nextElementSibling;
+    const links = document.getElementById('links');
+
     function updateloadingAmt() {
       const pct = ((progressHi + progressMid + progressLow + progressBillboard) / 4) * 100;
       loadingAmt.innerHTML = Math.floor(pct) + "%"
@@ -262,7 +272,7 @@
 
     // Load bat models.
     Promise.all([
-      loadModel('bat_hi.glb', p => { progressMid = p; }),
+      loadModel('bat_hi.glb', p => { progressHi = p; }),
       loadModel('bat_mid.glb', p => { progressMid = p; }),
       loadModel('bat_low.glb', p => { progressLow = p; }),
       loadModel('billboard.glb', p => { progressBillboard = p })
@@ -276,10 +286,9 @@
         loadingAmt.classList.add('hidden');
         const loaderElem = document.getElementById('loadingScreen');
         loaderElem.classList.add('hiddenLoader');
-        loaderElem.addEventListener('animationend', () => {
-          loaderElem.remove()
-        });
-
+        setTimeout(function () {
+          loaderElem.remove();
+        }, 1000);
       });
 
       takeMeBack.addEventListener('click', function () {
@@ -314,10 +323,18 @@
             element.style.display = 'none';
           }
         });
-      }
-
-      function isFocused(elem) {
-        return elem.classList.contains('focused');
+        if (shouldShow) {
+          rearrangeWorks()
+          worksCol1.insertBefore(headerBox, worksCol1.firstChild);
+          links.style.left = '50%';
+          links.style.marginLeft = '4px';
+          selectedWorksContent.style.display = '';
+        } else {
+          menuCatcher.insertAdjacentElement('afterEnd', headerBox);
+          links.style.left = '25%';
+          links.style.marginLeft = 0;
+          selectedWorksContent.style.display = 'none';
+        }
       }
 
       function showMenu(shouldShow) {
@@ -381,6 +398,7 @@
           showContact(false);
         } else {
           showMenu(false);
+          showSelectedWorks(false);
         }
       })
 
@@ -421,10 +439,6 @@
           event.preventDefault();
           submitForm();
         }
-      });
-
-      buffer.addEventListener('click', function () {
-        showMenu(false);
       });
 
       batLowModel = gltfLow.scene;
@@ -645,18 +659,12 @@
     function rearrangeWorks() {
       // Clear columns.
       worksCol1.innerHTML = '';
-      if (buffer) {
-        worksCol1.appendChild(buffer);
-      }
       worksCol2.innerHTML = '';
 
       // Check viewport width to decide layout.
       if (window.innerWidth < 1024) {
-        // For skinny screens, put all items in worksCol1.
-        buffer.style.height = `${(window.innerHeight / 8) + 32}px`;
         works.forEach(item => worksCol1.appendChild(item));
       } else {
-        buffer.style.height = `${(window.innerHeight / 4) + 32}px`;
         // For wider screens, alternate
         // items between the two columns.
         works.forEach((item, index) => {
@@ -708,24 +716,6 @@
       .catch(error => console.error('Error loading selected-works.json:', error));
 
     window.addEventListener('resize', rearrangeWorks);
-
-    window.addEventListener('scroll', (function () {
-      console.log("scrolling")
-      let timeout = null;
-      return function () {
-        if (timeout) return;
-        if (!buffer) return;
-        const bufferHeight = buffer.offsetHeight;
-        if (window.pageYOffset > bufferHeight) {
-          console.log("scrolled too far!")
-          document.getElementById('links').style.opacity = "0.001";
-        } else {
-          console.log("not very scrolled")
-          document.getElementById('links').style.opacity = "1";
-        }
-        timeout = setTimeout(() => { timeout = null; }, 100);
-      };
-    })());
   </script>
 </body>
 
