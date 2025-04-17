@@ -115,8 +115,7 @@ input[type="checkbox"]:checked::after {
 /* Base styles for all divs */
 .name,
 .links,
-.copyright,
-.shop {
+.copyright {
     font: 9pt Arial, sans-serif;
     padding-left: 3ch;
     padding-top: 3ch;
@@ -129,8 +128,7 @@ input[type="checkbox"]:checked::after {
 
 /* Base styles for all divs */
 .name,
-.links,
-.shop {
+.links {
     text-transform: uppercase;
 }
 
@@ -231,13 +229,18 @@ a:visited {
 #headerBox {
     position: absolute;
     width: 100%;
+    min-height: 105px;
 }
 
-.shop,
 .copyright {
     position: absolute;
     top: 100%;
     margin-top: -50px;
+}
+
+.shop {
+    position: absolute;
+    top: 100%;
 }
 
 /* For screens wider than 1024px */
@@ -258,10 +261,6 @@ a:visited {
         left: 0%;
     }
 
-    .shop {
-        left: 25%;
-    }
-
     .aboutContent {
         position: absolute;
         left: 50%;
@@ -279,6 +278,12 @@ a:visited {
 
     #headerBox {
         height: 25%;
+        width: 50%
+    }
+
+    #links {
+        position: relative;
+        left: 50%;
     }
 }
 
@@ -305,10 +310,6 @@ a:visited {
         top: 0%;
     }
 
-    .shop {
-        left: 50%;
-    }
-
     .aboutContent {
         font: 9pt Arial, sans-serif;
         position: absolute;
@@ -332,10 +333,10 @@ a:visited {
 
     #worksCol1 {
         width: 100%;
-        margin-top: 12.5%;
     }
 
     #headerBox {
         height: 12.5%;
+        width: 100%;
     }
 }

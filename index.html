@@ -49,9 +49,9 @@
       <div id="contactButton" class="menuItem">
         <p>contact</p>
       </div>
+      <div id="shopButton" class="shop menuItem">shop</div>
     </div>
     <div class="copyright">&copy; 2025 All Rights Reserved</div>
-    <div id="shopButton" class="shop menuItem">shop</div>
   </div>
   <div id="menuContent" class="hidden">
     <div id="about" class="aboutContent hidden">
@@ -325,14 +325,16 @@
         });
         if (shouldShow) {
           rearrangeWorks()
+          headerBox.style.position = 'relative';
+          links.style.marginLeft = '8px';
+          shopButton.style.marginLeft = '8px';
           worksCol1.insertBefore(headerBox, worksCol1.firstChild);
-          links.style.left = '50%';
-          links.style.marginLeft = '4px';
           selectedWorksContent.style.display = '';
         } else {
-          menuCatcher.insertAdjacentElement('afterEnd', headerBox);
-          links.style.left = '25%';
+          headerBox.style.position = '';
           links.style.marginLeft = 0;
+          shopButton.style.marginLeft = 0;
+          menuCatcher.insertAdjacentElement('afterEnd', headerBox);
           selectedWorksContent.style.display = 'none';
         }
       }
