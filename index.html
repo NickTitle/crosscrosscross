@@ -12,31 +12,6 @@
 
 <body>
   <div id="menuCatcher" class="hidden"></div>
-  <div id="loadingScreen">
-    <div id="disclaimer" class="menuText">
-      <p>This work critically engages with the Nike Swoosh as a cultural symbol and is
-        intended as artistic commentary. It is not authorized, endorsed, affiliated with or
-        sponsored by Nike, Inc. The Swoosh is a registered trademark of Nike, Inc.
-      </p>
-      <p>
-        By proceeding, you acknowledge that this content is not associated with Nike, Inc.
-      </p>
-      <div id="consentBox" class="hidden">
-        <div>
-          <input type="checkbox" id="acknowledge">
-          <label for="acknowledge">I Understand & Accept</label>
-        </div>
-        <div>
-          <input type="checkbox" id="takeMeBack">
-          <label for="takeMeBack">Take me back</label>
-        </div>
-
-      </div>
-
-    </div>
-    <div id="loadingAmt" class="menuText"></div>
-  </div>
-
   <div id="headerBox">
     <div class="name">eduardo enrique</div>
     <div id="links" class="links">
@@ -110,9 +85,33 @@
       </p>
     </div>
   </div>
-  <div id="selectedWorks" class="hidden">
+  <div id="selectedWorks">
     <div id="worksCol1"></div>
     <div id="worksCol2"></div>
+  </div>
+  <div id="loadingScreen">
+    <div id="disclaimer" class="menuText">
+      <p>This work critically engages with the Nike Swoosh as a cultural symbol and is
+        intended as artistic commentary. It is not authorized, endorsed, affiliated with or
+        sponsored by Nike, Inc. The Swoosh is a registered trademark of Nike, Inc.
+      </p>
+      <p>
+        By proceeding, you acknowledge that this content is not associated with Nike, Inc.
+      </p>
+      <div id="consentBox" class="hidden">
+        <div>
+          <input type="checkbox" id="acknowledge">
+          <label for="acknowledge">I Understand & Accept</label>
+        </div>
+        <div>
+          <input type="checkbox" id="takeMeBack">
+          <label for="takeMeBack">Take me back</label>
+        </div>
+
+      </div>
+
+    </div>
+    <div id="loadingAmt" class="menuText"></div>
   </div>
   <script>
     function isFocused(elem) {
@@ -251,8 +250,8 @@
     const shopButton = document.getElementById('shopButton');
 
     const headerBox = document.getElementById('headerBox');
-    const headerBoxOriginalParent = headerBox.parentElement;
-    const headerBoxOriginalSibling = headerBox.nextElementSibling;
+    const worksCol1 = document.getElementById('worksCol1');
+    const worksCol2 = document.getElementById('worksCol2');
     const links = document.getElementById('links');
 
     function updateloadingAmt() {
@@ -296,13 +295,19 @@
       })
 
       function showMenuItem(button, content, shouldShow = true) {
+        console.log(button, content, shouldShow)
         if (shouldShow) {
           menuActive = true;
           button.classList.add('focused');
-          content.classList.remove('hidden');
+          if (button != selectedWorksButton) {
+            content.classList.remove('hidden');
+          }
+
         } else {
           button.classList.remove('focused');
-          content.classList.add('hidden');
+          if (button != selectedWorksButton) {
+            content.classList.add('hidden');
+          }
         }
       }
 
@@ -316,27 +321,13 @@
 
       function showSelectedWorks(shouldShow = true) {
         showMenuItem(selectedWorksButton, selectedWorksContent, shouldShow);
-        document.querySelectorAll('.workItem').forEach(element => {
-          if (shouldShow) {
-            element.style.display = '';
-          } else {
-            element.style.display = 'none';
-          }
-        });
-        if (shouldShow) {
-          rearrangeWorks()
-          headerBox.style.position = 'relative';
-          links.style.marginLeft = '8px';
-          shopButton.style.marginLeft = '8px';
-          worksCol1.insertBefore(headerBox, worksCol1.firstChild);
-          selectedWorksContent.style.display = '';
-        } else {
-          headerBox.style.position = '';
-          links.style.marginLeft = 0;
-          shopButton.style.marginLeft = 0;
-          menuCatcher.insertAdjacentElement('afterEnd', headerBox);
-          selectedWorksContent.style.display = 'none';
-        }
+        // show/hide each workItem
+        const works = document.querySelectorAll('.workItem')
+        console.log(works)
+
+        works.forEach(el => el.style.display = (shouldShow ? '' : 'none'));
+
+        if (shouldShow) rearrangeWorks();
       }
 
       function showMenu(shouldShow) {
@@ -347,16 +338,10 @@
           menuContent.classList.add('fade');
 
           menuCatcher.classList.remove('hidden');
-          selectedWorksContent.classList.add('fastHidden');
-          selectedWorksContent.classList.add('fade');
         } else {
           menuCatcher.classList.add('hidden');
           menuContent.classList.remove('fastHidden');
           menuContent.classList.remove('fade');
-
-          selectedWorksContent.classList.add('hidden');
-          selectedWorksContent.classList.remove('fastHidden');
-          selectedWorksContent.classList.remove('fade');
 
           aboutButton.classList.remove('focused');
           contactButton.classList.remove('focused');
@@ -653,9 +638,6 @@
       updateTiles();
     }).catch(err => console.error('Error loading models:', err));
 
-    const worksCol1 = document.getElementById('worksCol1');
-    const worksCol2 = document.getElementById('worksCol2');
-
     let works = [];
 
     function rearrangeWorks() {
@@ -663,18 +645,19 @@
       worksCol1.innerHTML = '';
       worksCol2.innerHTML = '';
 
-      // Check viewport width to decide layout.
+      worksCol1.innerHTML = '';
+      worksCol2.innerHTML = '';
+
+      // 1. keep headerBox at the top
+      worksCol1.appendChild(headerBox);
+
+      // 2. distribute items
       if (window.innerWidth < 1024) {
         works.forEach(item => worksCol1.appendChild(item));
       } else {
-        // For wider screens, alternate
-        // items between the two columns.
-        works.forEach((item, index) => {
-          if (index % 2 === 1) {
-            worksCol1.appendChild(item);
-          } else {
-            worksCol2.appendChild(item);
-          }
+        works.forEach((item, i) => {
+          if (i % 2) worksCol1.appendChild(item);
+          else worksCol2.appendChild(item);
         });
       }
     }
@@ -686,6 +669,7 @@
           // Create a container for each work item.
           const workElem = document.createElement('div');
           workElem.className = 'workItem';
+          workElem.style.display = 'none';
 
           // Attach metadata as data attributes.
           workElem.dataset.title = work.title;
