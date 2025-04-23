@@ -357,7 +357,18 @@
         // show/hide each workItem
         const works = document.querySelectorAll('.workItem')
 
-        works.forEach(el => el.style.display = (shouldShow ? '' : 'none'));
+        works.forEach(el => {
+
+          if (shouldShow) {
+            el.classList.add('fade');
+            el.classList.add('fastHidden');
+            el.classList.remove('hidden');
+          } else {
+            el.classList.remove('fade');
+            el.classList.remove('fastHidden');
+            el.classList.add('hidden');
+          }
+        });
 
         if (shouldShow) rearrangeWorks();
       }
@@ -719,7 +730,7 @@
           // Create a container for each work item.
           const workElem = document.createElement('div');
           workElem.className = 'workItem';
-          workElem.style.display = 'none';
+          workElem.classList.add('hidden');
 
           // Attach metadata as data attributes.
           workElem.dataset.title = work.title;
