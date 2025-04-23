@@ -24,6 +24,9 @@
       <div id="contactButton" class="menuItem">
         <p>contact</p>
       </div>
+      <div id="pressButton" class="menuItem">
+        <p>press</p>
+      </div>
       <div id="shopButton" class="shop menuItem">shop</div>
     </div>
     <div id="copyright" class="copyright">&copy; 2025 All Rights Reserved</div>
@@ -82,6 +85,36 @@
         <div id="subscribeButton" class="menuItem">SEND</div>
       </div>
       </p>
+    </div>
+    <div id="press" class="pressContent hidden">
+      <a href="https://vogue.sg/eduardo-enrique-singapore-artist-fashion-painting-art-spray-paint-canvas/"
+        target="_blank">
+        "What Is A Fashion Painting?" - VOGUE Singapore (2021)
+      </a>
+      <br><br>
+
+      <a href="https://vogue.sg/eduardo-enrique-singapore-artist-fashion-painting-art-spray-paint-canvas/"
+        target="_blank">
+        "What Is A Fashion Painting?" - VOGUE Singapore (2021)
+      </a>
+      <br><br>
+
+      <a href="https://vogue.sg/eduardo-enrique-singapore-artist-fashion-painting-art-spray-paint-canvas/"
+        target="_blank">
+        "What Is A Fashion Painting?" - VOGUE Singapore (2021)
+      </a>
+      <br><br>
+
+      <a href="https://vogue.sg/eduardo-enrique-singapore-artist-fashion-painting-art-spray-paint-canvas/"
+        target="_blank">
+        "What Is A Fashion Painting?" - VOGUE Singapore (2021)
+      </a>
+      <br><br>
+
+      <a href="https://vogue.sg/eduardo-enrique-singapore-artist-fashion-painting-art-spray-paint-canvas/"
+        target="_blank">
+        "What Is A Fashion Painting?" - VOGUE Singapore (2021)
+      </a>
     </div>
   </div>
   <div id="loadingScreen">
@@ -238,6 +271,8 @@
     const aboutContent = document.getElementById('about');
     const contactButton = document.getElementById('contactButton');
     const contactContent = document.getElementById('contact');
+    const pressButton = document.getElementById('pressButton');
+    const pressContent = document.getElementById('press');
     const selectedWorksButton = document.getElementById('selectedWorksButton');
     const selectedWorksContent = document.getElementById('selectedWorks');
     const menuCatcher = document.getElementById('menuCatcher');
@@ -290,7 +325,6 @@
       })
 
       function showMenuItem(button, content, shouldShow = true) {
-        console.log(button, content, shouldShow)
         if (shouldShow) {
           menuActive = true;
           button.classList.add('focused');
@@ -314,11 +348,14 @@
         showMenuItem(contactButton, contactContent, shouldShow);
       }
 
+      function showPress(shouldShow = true) {
+        showMenuItem(pressButton, pressContent, shouldShow);
+      }
+
       function showSelectedWorks(shouldShow = true) {
         showMenuItem(selectedWorksButton, selectedWorksContent, shouldShow);
         // show/hide each workItem
         const works = document.querySelectorAll('.workItem')
-        console.log(works)
 
         works.forEach(el => el.style.display = (shouldShow ? '' : 'none'));
 
@@ -340,6 +377,7 @@
 
           aboutButton.classList.remove('focused');
           contactButton.classList.remove('focused');
+          pressButton.classList.remove('focused');
           selectedWorksButton.classList.remove('focused');
         }
       }
@@ -351,6 +389,7 @@
           }
           showAbout(true);
           showContact(false);
+          showPress(false);
           showSelectedWorks(false);
         } else {
           showMenu(false);
@@ -364,6 +403,21 @@
           }
           showContact(true);
           showAbout(false);
+          showPress(false);
+          showSelectedWorks(false);
+        } else {
+          showMenu(false);
+        }
+      })
+
+      pressButton.addEventListener('click', function () {
+        if (!isFocused(pressButton)) {
+          if (!menuActive) {
+            showMenu(true);
+          }
+          showPress(true);
+          showAbout(false);
+          showContact(false);
           showSelectedWorks(false);
         } else {
           showMenu(false);
@@ -378,6 +432,7 @@
           showSelectedWorks(true);
           showAbout(false);
           showContact(false);
+          showPress(false);
         } else {
           showMenu(false);
           showSelectedWorks(false);

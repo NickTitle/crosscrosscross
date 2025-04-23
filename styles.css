@@ -143,7 +143,8 @@ input[type="checkbox"]:checked::after {
 }
 
 .aboutContent,
-.contactContent {
+.contactContent,
+.pressContent {
     font: 9pt Arial, sans-serif;
     user-select: none;
     -webkit-user-select: none;
@@ -169,7 +170,8 @@ a:visited {
 }
 
 .aboutContent a:hover,
-.contactContent a:hover {
+.contactContent a:hover,
+.pressContent a:hover {
     font-weight: 900;
 }
 
@@ -242,6 +244,8 @@ a:visited {
 }
 
 .copyright {
+    left: 0%;
+    margin-top: -35px;
     position: absolute;
     top: 100%;
 }
@@ -258,20 +262,22 @@ a:visited {
     top: 0%;
 }
 
-.copyright {
-    left: 0%;
-    top: 100%;
-    margin-top: -35px;
-}
-
 #links {
     position: absolute;
     height: 100%;
 }
 
+.aboutContent,
+.contactContent,
+.pressContent {
+    margin-right: 20px;
+}
+
 /* For screens wider than 1024px */
 @media (min-width: 1024px) {
-    .aboutContent {
+
+    .aboutContent,
+    .pressContent {
         position: absolute;
         left: 50%;
         top: 25%;
@@ -301,12 +307,12 @@ a:visited {
         left: 50%;
     }
 
-    .aboutContent {
+    .aboutContent,
+    .pressContent {
         font: 9pt Arial, sans-serif;
         position: absolute;
         left: 20px;
         top: 25%;
-        margin-right: 20px;
     }
 
     .contactContent {
@@ -315,7 +321,6 @@ a:visited {
         left: 20px;
         top: 25%;
         width: 100%;
-        margin-right: 20px;
     }
 
     #worksCol1 {
