@@ -59,6 +59,10 @@ input[type="checkbox"] {
     font-size: 9pt;
 }
 
+#headerBox {
+    font-size: 9pt;
+}
+
 .fastHidden {
     visibility: hidden;
     opacity: 0;
@@ -117,8 +121,6 @@ input[type="checkbox"]:checked::after {
 .links,
 .copyright {
     font: 9pt Arial, sans-serif;
-    padding-left: 3ch;
-    padding-top: 3ch;
 
     user-select: none;
     -webkit-user-select: none;
@@ -143,8 +145,6 @@ input[type="checkbox"]:checked::after {
 .aboutContent,
 .contactContent {
     font: 9pt Arial, sans-serif;
-    margin: 3px;
-
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -234,35 +234,43 @@ a:visited {
     z-index: 1000;
 }
 
+#headerBox,
+.name,
+.copyright {
+    padding-left: 3ch;
+    padding-top: 3ch;
+}
+
 .copyright {
     position: absolute;
     top: 100%;
-    margin-top: -50px;
 }
 
 .shop {
     position: absolute;
     top: 100%;
+    margin-top: -35px;
+}
+
+.name {
+    position: absolute;
+    left: 0%;
+    top: 0%;
+}
+
+.copyright {
+    left: 0%;
+    top: 100%;
+    margin-top: -35px;
+}
+
+#links {
+    position: absolute;
+    height: 100%;
 }
 
 /* For screens wider than 1024px */
 @media (min-width: 1024px) {
-    .name {
-        position: absolute;
-        left: 0%;
-        top: 0%;
-    }
-
-    .links {
-        position: absolute;
-        left: 25%;
-        top: 0%;
-    }
-
-    .copyright {
-        left: 0%;
-    }
-
     .aboutContent {
         position: absolute;
         left: 50%;
@@ -281,49 +289,33 @@ a:visited {
         height: 25%;
     }
 
+
     #links {
-        position: relative;
         left: 75%;
     }
 }
 
 /* For screens under 1024px */
 @media (max-width: 1023px) {
-
-    .name,
-    .links,
-    .copyright,
-    .shop,
-    #disclaimer {
-        font-size: 9pt;
-    }
-
-    .name {
-        position: absolute;
-        left: 0%;
-        top: 0%;
-    }
-
-    .links {
-        position: absolute;
+    #links {
         left: 50%;
-        top: 0%;
     }
 
     .aboutContent {
         font: 9pt Arial, sans-serif;
         position: absolute;
-        left: 0;
+        left: 20px;
         top: 25%;
-        width: 99%;
+        margin-right: 20px;
     }
 
     .contactContent {
         position: absolute;
         font: 9pt Arial, sans-serif;
-        left: 0;
+        left: 20px;
         top: 25%;
         width: 100%;
+        margin-right: 20px;
     }
 
     #worksCol1 {
