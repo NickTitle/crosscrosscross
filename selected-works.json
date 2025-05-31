@@ -2,45 +2,45 @@
   "works": [
     {
       "filename": "1.jpg",
-      "title": "All-American Performance",
+      "title": "Untitled",
+      "medium": "Lathe-carved Birch Wood, enamel, and graphic inlays.",
+      "size": "87 cm × 34 cm × 7 cm",
+      "year": "2025"
+    },
+    {
+      "filename": "2.jpg",
+      "title": "All-American Performance (3:15)",
       "medium": "Lathe-carved Birch Wood, enamel, and graphic inlays.",
       "size": "(Scale adaptable to exhibition space)",
       "year": "2025"
     },
     {
-      "filename": "2.jpg",
-      "title": "title goes here",
-      "medium": "medium medium",
-      "size": "size here",
-      "year": "2077"
-    },
-    {
       "filename": "3.jpg",
-      "title": "title goes here",
-      "medium": "medium medium",
-      "size": "size here",
-      "year": "2077"
+      "title": "The Tea Tastes Funny",
+      "medium": "Found basketball on antique Chinese bird-shaped bronze vessel.",
+      "size": "48 cm × 24 cm × 24 cm",
+      "year": "2022"
     },
     {
       "filename": "4.jpg",
-      "title": "title goes here",
-      "medium": "medium medium",
-      "size": "size here",
-      "year": "2077"
+      "title": "Something is Killing the Kids",
+      "medium": "Batting helmet on Chinese ceremonial bronze kettle; rosewood stand.",
+      "size": "46 cm × 22.5 cm × 26 cm",
+      "year": "2024"
     },
     {
       "filename": "5.jpg",
-      "title": "title goes here",
-      "medium": "medium medium",
-      "size": "size here",
-      "year": "2077"
+      "title": "Indulgence Numbs Rational Inquiry",
+      "medium": "85 cm × 155 cm × 4 cm",
+      "size": "85 cm × 155 cm × 4 cm",
+      "year": "2025"
     },
     {
       "filename": "6.jpg",
-      "title": "title goes here",
-      "medium": "medium medium",
-      "size": "size here",
-      "year": "2077"
+      "title": "New World Order",
+      "medium": "Baseball chest guard on archival museum photogrammetry.",
+      "size": "121 cm × 121 cm × 2 cm",
+      "year": "2024"
     }
   ]
 }
