@@ -18,13 +18,13 @@
       <div id="aboutButton" class="menuItem">
         <p>about</p>
       </div>
-      <div id="selectedWorksButton" class="menuItem">
+      <div id="selectedWorksButton" class="menuItem" style="display: none;">
         <p>selected works</p>
       </div>
       <div id="contactButton" class="menuItem">
         <p>contact</p>
       </div>
-      <div id="pressButton" class="menuItem">
+      <div id="pressButton" class="menuItem" style="display: none;">
         <p>press</p>
       </div>
       <div id="shopButton" class="shop menuItem">shop</div>
@@ -457,7 +457,7 @@
       shopButton.addEventListener('click', function () {
         shopLink = document.createElement('a');
         shopLink.target = '_blank'
-        shopLink.href = 'https://www.artsy.net/artwork/eduardo-enrique-untitled'
+        shopLink.href = 'https://www.artsy.net/artist/eduardo-enrique'
         shopLink.click()
       })
 
