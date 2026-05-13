@@ -530,18 +530,10 @@
 
       // Bat pool with LOD.
       const batPool = [];
-      const batMotionProfiles = {
-        baseOffset: [],
-        primaryAmplitude: [],
-        secondaryAmplitude: [],
-        primaryFrequency: [],
-        secondaryFrequency: [],
-        primaryPhase: [],
-        secondaryPhase: []
-      };
       const sineTableSize = 4096;
       const sineTableMask = sineTableSize - 1;
       const sineTable = new Float32Array(sineTableSize);
+      const batMotionSpeedScale = 0.5;
       for (let i = 0; i < sineTableSize; i++) {
         sineTable[i] = Math.sin((i / sineTableSize) * Math.PI * 2);
       }
@@ -552,6 +544,21 @@
         const indexB = (indexA + 1) & sineTableMask;
         const mix = index - indexA;
         return sineTable[indexA] * (1 - mix) + sineTable[indexB] * mix;
+      }
+      function hash2D(x, z, salt = 0) {
+        const raw = Math.sin(x * 127.1 + z * 311.7 + salt * 74.7) * 43758.5453;
+        return raw - Math.floor(raw);
+      }
+      function getBatMotionFromPosition(x, z) {
+        return {
+          baseOffset: (hash2D(x, z, 1) - 0.5) * 0.08,
+          primaryAmplitude: 0.025 + hash2D(x, z, 2) * 0.03,
+          secondaryAmplitude: 0.008 + hash2D(x, z, 3) * 0.015,
+          primaryFrequency: 0.045 + hash2D(x, z, 4) * 0.055,
+          secondaryFrequency: 0.08 + hash2D(x, z, 5) * 0.095,
+          primaryPhase: hash2D(x, z, 6),
+          secondaryPhase: hash2D(x, z, 7)
+        };
       }
       const initialPoolSize = 500;
       function createBat() {
@@ -609,12 +616,22 @@
         for (let i = 0; i < batPool.length; i++) {
           if (i < targetPositions.length) {
             batPool[i].visible = true;
-            const primaryWave = sampleSine(elapsedTime * batMotionProfiles.primaryFrequency[i] + batMotionProfiles.primaryPhase[i]);
-            const secondaryWave = sampleSine(elapsedTime * batMotionProfiles.secondaryFrequency[i] + batMotionProfiles.secondaryPhase[i]);
+            const target = targetPositions[i];
+            const motion = getBatMotionFromPosition(target.x, target.z);
+            const distanceToCamera = target.distanceTo(camera.position);
+            let lodFrequencyScale = 1;
+            if (distanceToCamera > 30) {
+              lodFrequencyScale = 0.25;
+            } else if (distanceToCamera > 5) {
+              lodFrequencyScale = 0.5;
+            }
+            const cycleTime = elapsedTime * batMotionSpeedScale * lodFrequencyScale;
+            const primaryWave = sampleSine(cycleTime * motion.primaryFrequency + motion.primaryPhase);
+            const secondaryWave = sampleSine(cycleTime * motion.secondaryFrequency + motion.secondaryPhase);
             batPool[i].position.set(
-              targetPositions[i].x,
-              targetPositions[i].y + batMotionProfiles.baseOffset[i] + primaryWave * batMotionProfiles.primaryAmplitude[i] + secondaryWave * batMotionProfiles.secondaryAmplitude[i],
-              targetPositions[i].z
+              target.x,
+              target.y + motion.baseOffset + primaryWave * motion.primaryAmplitude + secondaryWave * motion.secondaryAmplitude,
+              target.z
             );
             batPool[i].update(camera);
           } else {
@@ -694,6 +711,7 @@
 
       // Main animation loop.
       let lastTime = performance.now();
+      let batTime = 0;
       function animate() {
         requestAnimationFrame(animate);
 
@@ -701,6 +719,7 @@
         let delta = (currentTime - lastTime) / 1000; // seconds
         delta = Math.min(delta, 0.1);
         lastTime = currentTime;
+        batTime += delta;
 
         // Initialize yaw and pitch if not already set.
         if (camera.userData.yaw === undefined) {
@@ -733,7 +752,7 @@
 
 
         updateTiles();
-        updateBatPositions(currentTime / 1000);
+        updateBatPositions(batTime);
         // Update rain drops.
         updateRainDrops(delta);
 
