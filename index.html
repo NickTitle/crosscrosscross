@@ -18,13 +18,13 @@
       <div id="aboutButton" class="menuItem">
         <p>about</p>
       </div>
-      <div id="selectedWorksButton" class="menuItem">
+      <div id="selectedWorksButton" class="menuItem" style="display: none;">
         <p>selected works</p>
       </div>
       <div id="contactButton" class="menuItem">
         <p>contact</p>
       </div>
-      <div id="pressButton" class="menuItem">
+      <div id="pressButton" class="menuItem" style="display: none;">
         <p>press</p>
       </div>
       <div id="shopButton" class="shop menuItem">shop</div>
@@ -573,6 +573,13 @@
       function registerBat() {
         const bat = createBat();
         batPool.push(bat);
+        batMotionProfiles.baseOffset.push((Math.random() - 0.5) * 0.08);
+        batMotionProfiles.primaryAmplitude.push(0.025 + Math.random() * 0.03);
+        batMotionProfiles.secondaryAmplitude.push(0.008 + Math.random() * 0.015);
+        batMotionProfiles.primaryFrequency.push(0.09 + Math.random() * 0.11);
+        batMotionProfiles.secondaryFrequency.push(0.16 + Math.random() * 0.19);
+        batMotionProfiles.primaryPhase.push(Math.random());
+        batMotionProfiles.secondaryPhase.push(Math.random());
         scene.add(bat);
       }
 
@@ -662,32 +669,41 @@
       // Touch event handlers.
       let touchStartX = 0, touchStartY = 0;
       let touchMoved = false;
+      let touchStartedOnScene = false;
       const dragThreshold = 5;
+      function isUiTarget(target) {
+        return !!target.closest('#loadingScreen, #menuContent, #menuCatcher, input, label, a, .menuItem');
+      }
       function handleTouchStart(e) {
-        if (e.touches.length === 1 && !menuActive) {
-          e.preventDefault();
-          const touch = e.touches[0];
-          touchStartX = touch.clientX;
-          touchStartY = touch.clientY;
-          touchMoved = false;
-          onDragStart(touch.clientX, touch.clientY);
+        if (e.touches.length !== 1 || menuActive || isUiTarget(e.target)) {
+          touchStartedOnScene = false;
+          return;
         }
+
+        touchStartedOnScene = true;
+        e.preventDefault();
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        touchMoved = false;
+        onDragStart(touch.clientX, touch.clientY);
       }
       function handleTouchMove(e) {
-        if (e.touches.length === 1 && !menuActive) {
-          e.preventDefault();
-          const touch = e.touches[0];
-          const dx = touch.clientX - touchStartX;
-          const dy = touch.clientY - touchStartY;
-          if (Math.sqrt(dx * dx + dy * dy) > dragThreshold) touchMoved = true;
-          onDragMove(touch.clientX, touch.clientY);
-        }
+        if (!touchStartedOnScene || e.touches.length !== 1 || menuActive) return;
+
+        e.preventDefault();
+        const touch = e.touches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        if (Math.sqrt(dx * dx + dy * dy) > dragThreshold) touchMoved = true;
+        onDragMove(touch.clientX, touch.clientY);
       }
       function handleTouchEnd(e) {
         onDragEnd();
-        if (!touchMoved) {
+        if (touchStartedOnScene && !touchMoved) {
           onClick({ clientX: touchStartX, clientY: touchStartY });
         }
+        touchStartedOnScene = false;
       }
       window.addEventListener('touchstart', handleTouchStart, { passive: false });
       window.addEventListener('touchmove', handleTouchMove, { passive: false });
