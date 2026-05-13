@@ -616,6 +616,7 @@
       const dragThreshold = 5;
       function handleTouchStart(e) {
         if (e.touches.length === 1 && !menuActive) {
+          e.preventDefault();
           const touch = e.touches[0];
           touchStartX = touch.clientX;
           touchStartY = touch.clientY;
@@ -625,6 +626,7 @@
       }
       function handleTouchMove(e) {
         if (e.touches.length === 1 && !menuActive) {
+          e.preventDefault();
           const touch = e.touches[0];
           const dx = touch.clientX - touchStartX;
           const dy = touch.clientY - touchStartY;
@@ -638,8 +640,8 @@
           onClick({ clientX: touchStartX, clientY: touchStartY });
         }
       }
-      window.addEventListener('touchstart', handleTouchStart);
-      window.addEventListener('touchmove', handleTouchMove);
+      window.addEventListener('touchstart', handleTouchStart, { passive: false });
+      window.addEventListener('touchmove', handleTouchMove, { passive: false });
       window.addEventListener('touchend', handleTouchEnd);
 
       // Main animation loop.

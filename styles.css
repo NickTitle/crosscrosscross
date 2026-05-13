@@ -1,6 +1,9 @@
+html,
 body {
     margin: 0;
     overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
 }
 
 canvas {
@@ -194,6 +197,7 @@ a:visited {
 #selectedWorks {
     position: absolute;
     overflow-y: scroll;
+    touch-action: pan-y;
     box-sizing: content-box;
     padding-right: 15px;
     width: 100%;
