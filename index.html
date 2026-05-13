@@ -530,6 +530,29 @@
 
       // Bat pool with LOD.
       const batPool = [];
+      const batMotionProfiles = {
+        baseOffset: [],
+        primaryAmplitude: [],
+        secondaryAmplitude: [],
+        primaryFrequency: [],
+        secondaryFrequency: [],
+        primaryPhase: [],
+        secondaryPhase: []
+      };
+      const sineTableSize = 4096;
+      const sineTableMask = sineTableSize - 1;
+      const sineTable = new Float32Array(sineTableSize);
+      for (let i = 0; i < sineTableSize; i++) {
+        sineTable[i] = Math.sin((i / sineTableSize) * Math.PI * 2);
+      }
+      function sampleSine(normalizedCycle) {
+        const wrapped = normalizedCycle - Math.floor(normalizedCycle);
+        const index = wrapped * sineTableSize;
+        const indexA = index & sineTableMask;
+        const indexB = (indexA + 1) & sineTableMask;
+        const mix = index - indexA;
+        return sineTable[indexA] * (1 - mix) + sineTable[indexB] * mix;
+      }
       const initialPoolSize = 500;
       function createBat() {
         const lod = new THREE.LOD();
@@ -539,17 +562,29 @@
         lod.traverse(child => { if (child.isMesh) child.castShadow = true; });
         return lod;
       }
-      for (let i = 0; i < initialPoolSize; i++) {
+
+      function registerBat() {
         const bat = createBat();
         batPool.push(bat);
+        batMotionProfiles.baseOffset.push((Math.random() - 0.5) * 0.08);
+        batMotionProfiles.primaryAmplitude.push(0.025 + Math.random() * 0.03);
+        batMotionProfiles.secondaryAmplitude.push(0.008 + Math.random() * 0.015);
+        batMotionProfiles.primaryFrequency.push(0.09 + Math.random() * 0.11);
+        batMotionProfiles.secondaryFrequency.push(0.16 + Math.random() * 0.19);
+        batMotionProfiles.primaryPhase.push(Math.random());
+        batMotionProfiles.secondaryPhase.push(Math.random());
         scene.add(bat);
+      }
+
+      for (let i = 0; i < initialPoolSize; i++) {
+        registerBat();
       }
 
       // position billboard
       scene.add(billboardModel);
 
       // Update bat positions.
-      function updateBatPositions() {
+      function updateBatPositions(elapsedTime) {
         const targetPositions = [];
         const margin = 3;
         terrains.forEach(terrain => {
@@ -569,14 +604,18 @@
           }
         });
         while (batPool.length < targetPositions.length) {
-          const bat = createBat();
-          batPool.push(bat);
-          scene.add(bat);
+          registerBat();
         }
         for (let i = 0; i < batPool.length; i++) {
           if (i < targetPositions.length) {
             batPool[i].visible = true;
-            batPool[i].position.copy(targetPositions[i]);
+            const primaryWave = sampleSine(elapsedTime * batMotionProfiles.primaryFrequency[i] + batMotionProfiles.primaryPhase[i]);
+            const secondaryWave = sampleSine(elapsedTime * batMotionProfiles.secondaryFrequency[i] + batMotionProfiles.secondaryPhase[i]);
+            batPool[i].position.set(
+              targetPositions[i].x,
+              targetPositions[i].y + batMotionProfiles.baseOffset[i] + primaryWave * batMotionProfiles.primaryAmplitude[i] + secondaryWave * batMotionProfiles.secondaryAmplitude[i],
+              targetPositions[i].z
+            );
             batPool[i].update(camera);
           } else {
             batPool[i].visible = false;
@@ -694,7 +733,7 @@
 
 
         updateTiles();
-        updateBatPositions();
+        updateBatPositions(currentTime / 1000);
         // Update rain drops.
         updateRainDrops(delta);
 
