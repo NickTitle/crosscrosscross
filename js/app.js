@@ -1,15 +1,19 @@
 import { getDomElements } from './core/domElements.js';
 
 const dom = getDomElements();
-const SIN_TABLE_SIZE = 2048;
+const SIN_TABLE_SIZE = 4096;
+const SIN_TABLE_MASK = SIN_TABLE_SIZE - 1;
 const TWO_PI = Math.PI * 2;
 const sinTable = new Float32Array(SIN_TABLE_SIZE);
 for (let i = 0; i < SIN_TABLE_SIZE; i++) sinTable[i] = Math.sin((i / SIN_TABLE_SIZE) * TWO_PI);
 
 function sinLookup(phase) {
-  const normalized = ((phase % TWO_PI) + TWO_PI) % TWO_PI;
-  const index = Math.floor((normalized / TWO_PI) * SIN_TABLE_SIZE) % SIN_TABLE_SIZE;
-  return sinTable[index];
+  const wrapped = ((phase % TWO_PI) + TWO_PI) % TWO_PI;
+  const index = (wrapped / TWO_PI) * SIN_TABLE_SIZE;
+  const indexA = index & SIN_TABLE_MASK;
+  const indexB = (indexA + 1) & SIN_TABLE_MASK;
+  const mix = index - indexA;
+  return sinTable[indexA] * (1 - mix) + sinTable[indexB] * mix;
 }
 
 const appState = {
