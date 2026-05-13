@@ -695,6 +695,7 @@
 
       // Main animation loop.
       let lastTime = performance.now();
+      let batTime = 0;
       function animate() {
         requestAnimationFrame(animate);
 
@@ -702,6 +703,7 @@
         let delta = (currentTime - lastTime) / 1000; // seconds
         delta = Math.min(delta, 0.1);
         lastTime = currentTime;
+        batTime += delta;
 
         // Initialize yaw and pitch if not already set.
         if (camera.userData.yaw === undefined) {
@@ -734,7 +736,7 @@
 
 
         updateTiles();
-        updateBatPositions(currentTime / 1000);
+        updateBatPositions(batTime);
         // Update rain drops.
         updateRainDrops(delta);
 
