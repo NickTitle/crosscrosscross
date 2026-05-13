@@ -278,6 +278,7 @@
     const menuCatcher = document.getElementById('menuCatcher');
     const menuContent = document.getElementById('menuContent');
     const shopButton = document.getElementById('shopButton');
+    const subscribeButton = document.getElementById('subscribeButton');
 
     const headerBox = document.getElementById('headerBox');
     const worksCol1 = document.getElementById('worksCol1');
@@ -573,13 +574,6 @@
       function registerBat() {
         const bat = createBat();
         batPool.push(bat);
-        batMotionProfiles.baseOffset.push((Math.random() - 0.5) * 0.08);
-        batMotionProfiles.primaryAmplitude.push(0.025 + Math.random() * 0.03);
-        batMotionProfiles.secondaryAmplitude.push(0.008 + Math.random() * 0.015);
-        batMotionProfiles.primaryFrequency.push(0.09 + Math.random() * 0.11);
-        batMotionProfiles.secondaryFrequency.push(0.16 + Math.random() * 0.19);
-        batMotionProfiles.primaryPhase.push(Math.random());
-        batMotionProfiles.secondaryPhase.push(Math.random());
         scene.add(bat);
       }
 
