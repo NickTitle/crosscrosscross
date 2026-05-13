@@ -1,6 +1,17 @@
 import { getDomElements } from './core/domElements.js';
 
 const dom = getDomElements();
+const SIN_TABLE_SIZE = 2048;
+const TWO_PI = Math.PI * 2;
+const sinTable = new Float32Array(SIN_TABLE_SIZE);
+for (let i = 0; i < SIN_TABLE_SIZE; i++) sinTable[i] = Math.sin((i / SIN_TABLE_SIZE) * TWO_PI);
+
+function sinLookup(phase) {
+  const normalized = ((phase % TWO_PI) + TWO_PI) % TWO_PI;
+  const index = Math.floor((normalized / TWO_PI) * SIN_TABLE_SIZE) % SIN_TABLE_SIZE;
+  return sinTable[index];
+}
+
 const appState = {
   menuActive: false,
   originalPitch: 0,
@@ -278,11 +289,12 @@ function boot() {
         const spawnZ = camera.position.z + Math.sin(angle) * radius;
         const baseY = env.getTerrainHeight(spawnX, spawnZ) + 3 + Math.random() * 7;
         const heading = Math.random() * Math.PI * 2;
-        const flapPhase = Math.random() * Math.PI * 2;
+        const flapPhase = Math.random() * TWO_PI;
+        const bobSpeed = 0.7 + Math.random() * 0.35;
 
         batRoot.position.set(spawnX, baseY, spawnZ);
         batRoot.rotation.set(0, heading, 0);
-        bats.push({ batRoot, baseY, flapPhase });
+        bats.push({ batRoot, baseY, flapPhase, bobSpeed });
         scene.add(batRoot);
       }
 
@@ -331,7 +343,8 @@ function boot() {
         env.updateRainDrops(delta);
 
         for (const bat of bats) {
-          const wingBounce = Math.sin(currentTime * 0.008 + bat.flapPhase) * 0.12;
+          bat.flapPhase += delta * bat.bobSpeed;
+          const wingBounce = sinLookup(bat.flapPhase) * 0.12;
           bat.batRoot.position.y = bat.baseY + wingBounce;
         }
 
