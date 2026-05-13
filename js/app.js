@@ -261,7 +261,6 @@ function boot() {
       const bats = [];
       const batCount = 36;
       const spawnRadius = 28;
-      const tmpVec = new THREE.Vector3();
 
       for (let i = 0; i < batCount; i++) {
         const batRoot = batTemplates[i % batTemplates.length].clone(true);
@@ -275,11 +274,15 @@ function boot() {
 
         const angle = Math.random() * Math.PI * 2;
         const radius = spawnRadius * (0.35 + Math.random() * 0.75);
-        const heightOffset = 3 + Math.random() * 7;
-        const speed = 0.22 + Math.random() * 0.35;
+        const spawnX = camera.position.x + Math.cos(angle) * radius;
+        const spawnZ = camera.position.z + Math.sin(angle) * radius;
+        const baseY = env.getTerrainHeight(spawnX, spawnZ) + 3 + Math.random() * 7;
+        const heading = Math.random() * Math.PI * 2;
         const flapPhase = Math.random() * Math.PI * 2;
 
-        bats.push({ batRoot, angle, radius, heightOffset, speed, flapPhase });
+        batRoot.position.set(spawnX, baseY, spawnZ);
+        batRoot.rotation.set(0, heading, 0);
+        bats.push({ batRoot, baseY, flapPhase });
         scene.add(batRoot);
       }
 
@@ -328,16 +331,8 @@ function boot() {
         env.updateRainDrops(delta);
 
         for (const bat of bats) {
-          bat.angle += bat.speed * delta;
-          const worldX = camera.position.x + Math.cos(bat.angle) * bat.radius;
-          const worldZ = camera.position.z + Math.sin(bat.angle) * bat.radius;
-          const baseY = env.getTerrainHeight(worldX, worldZ) + bat.heightOffset;
-          const wingBounce = Math.sin(currentTime * 0.02 + bat.flapPhase) * 0.45;
-
-          bat.batRoot.position.set(worldX, baseY + wingBounce, worldZ);
-          tmpVec.set(camera.position.x, camera.position.y + 1.2, camera.position.z);
-          bat.batRoot.lookAt(tmpVec);
-          bat.batRoot.rotateY(Math.PI);
+          const wingBounce = Math.sin(currentTime * 0.008 + bat.flapPhase) * 0.12;
+          bat.batRoot.position.y = bat.baseY + wingBounce;
         }
 
         billboardRoot.position.x = camera.position.x + Math.sin(camera.userData.yaw) * 12;
