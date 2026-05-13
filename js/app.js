@@ -244,7 +244,7 @@ function boot() {
   });
 
   Promise.all([loadModel('bat_hi.glb', 'hi'), loadModel('bat_mid.glb', 'mid'), loadModel('bat_low.glb', 'low'), loadModel('billboard.glb', 'billboard')])
-    .then(() => {
+    .then(([batHi, batMid, batLow, billboard]) => {
       dom.loadingAmt.innerHTML = '100%';
       dom.loadingAmt.classList.add('fastHidden');
       dom.consentBox.classList.add('fade');
@@ -256,6 +256,44 @@ function boot() {
       });
       dom.takeMeBack.addEventListener('click', () => { document.location = 'https://nicktitle.github.io/meadowtext?text=%20'; });
       showMenu(false);
+
+      const batTemplates = [batHi.scene, batMid.scene, batLow.scene];
+      const bats = [];
+      const batCount = 36;
+      const spawnRadius = 28;
+      const tmpVec = new THREE.Vector3();
+
+      for (let i = 0; i < batCount; i++) {
+        const batRoot = batTemplates[i % batTemplates.length].clone(true);
+        batRoot.traverse(child => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = false;
+            if (child.material) child.material = child.material.clone();
+          }
+        });
+
+        const angle = Math.random() * Math.PI * 2;
+        const radius = spawnRadius * (0.35 + Math.random() * 0.75);
+        const heightOffset = 3 + Math.random() * 7;
+        const speed = 0.22 + Math.random() * 0.35;
+        const flapPhase = Math.random() * Math.PI * 2;
+
+        bats.push({ batRoot, angle, radius, heightOffset, speed, flapPhase });
+        scene.add(batRoot);
+      }
+
+      const billboardRoot = billboard.scene;
+      billboardRoot.scale.setScalar(1.5);
+      billboardRoot.position.set(0, env.getTerrainHeight(0, 0) + 2.2, -8);
+      billboardRoot.rotation.y = Math.PI;
+      billboardRoot.traverse(child => {
+        if (child.isMesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+        }
+      });
+      scene.add(billboardRoot);
 
       let forwardVel = 0, rotationVel = 0, isDragging = false, prevX = 0, prevY = 0;
       const onDragStart = (x, y) => { isDragging = true; prevX = x; prevY = y; };
@@ -288,6 +326,25 @@ function boot() {
         camera.position.y = env.getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
         env.updateTiles();
         env.updateRainDrops(delta);
+
+        for (const bat of bats) {
+          bat.angle += bat.speed * delta;
+          const worldX = camera.position.x + Math.cos(bat.angle) * bat.radius;
+          const worldZ = camera.position.z + Math.sin(bat.angle) * bat.radius;
+          const baseY = env.getTerrainHeight(worldX, worldZ) + bat.heightOffset;
+          const wingBounce = Math.sin(currentTime * 0.02 + bat.flapPhase) * 0.45;
+
+          bat.batRoot.position.set(worldX, baseY + wingBounce, worldZ);
+          tmpVec.set(camera.position.x, camera.position.y + 1.2, camera.position.z);
+          bat.batRoot.lookAt(tmpVec);
+          bat.batRoot.rotateY(Math.PI);
+        }
+
+        billboardRoot.position.x = camera.position.x + Math.sin(camera.userData.yaw) * 12;
+        billboardRoot.position.z = camera.position.z + Math.cos(camera.userData.yaw) * 12;
+        billboardRoot.position.y = env.getTerrainHeight(billboardRoot.position.x, billboardRoot.position.z) + 2.2;
+        billboardRoot.lookAt(camera.position.x, billboardRoot.position.y, camera.position.z);
+
         renderer.render(scene, camera);
       }
       animate();
