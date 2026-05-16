@@ -31,7 +31,7 @@
     </div>
     <div id="copyright" class="copyright">&copy; 2025 All Rights Reserved</div>
   </div>
-  <div id="selectedWorks">
+  <div id="selectedWorks" class="hidden">
     <div id="worksCol1"></div>
     <div id="worksCol2"></div>
   </div>
@@ -353,8 +353,10 @@
         showMenuItem(pressButton, pressContent, shouldShow);
       }
 
-      function showSelectedWorks(shouldShow = true) {
-        showMenuItem(selectedWorksButton, selectedWorksContent, shouldShow);
+      function setSelectedWorksVisible(shouldShow = true) {
+        selectedWorksContent.classList.toggle('hidden', !shouldShow);
+        selectedWorksContent.classList.toggle('fade', shouldShow);
+
         // show/hide each workItem
         const works = document.querySelectorAll('.workItem')
 
@@ -374,6 +376,11 @@
         if (shouldShow) rearrangeWorks();
       }
 
+      function showSelectedWorks(shouldShow = true) {
+        showMenuItem(selectedWorksButton, selectedWorksContent, shouldShow);
+        setSelectedWorksVisible(shouldShow);
+      }
+
       function showMenu(shouldShow) {
         menuActive = shouldShow;
         if (shouldShow) {
@@ -391,6 +398,7 @@
           contactButton.classList.remove('focused');
           pressButton.classList.remove('focused');
           selectedWorksButton.classList.remove('focused');
+          setSelectedWorksVisible(false);
         }
       }
 
@@ -769,13 +777,8 @@
       worksCol1.innerHTML = '';
       worksCol2.innerHTML = '';
 
-      worksCol1.innerHTML = '';
-      worksCol2.innerHTML = '';
-
-      // 1. keep headerBox at the top
-      worksCol1.appendChild(headerBox);
-
-      // 2. distribute items
+      // Keep the header outside the scrollable works container so menu drags
+      // cannot scroll it off screen.
       if (window.innerWidth < 1024) {
         works.forEach(item => worksCol1.appendChild(item));
       } else {
