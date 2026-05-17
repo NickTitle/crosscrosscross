@@ -3,7 +3,10 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>EDUARDO ENRIQUE - INRI</title>
   <link rel="stylesheet" href="./styles.css">
   <script src="https://cdn.jsdelivr.net/npm/three@0.140.0/build/three.min.js"></script>
@@ -146,17 +149,81 @@
       return elem.classList.contains('focused');
     }
 
+    function getViewportSize() {
+      const viewport = window.visualViewport;
+      return {
+        width: Math.round(viewport?.width || window.innerWidth),
+        height: Math.round(viewport?.height || window.innerHeight)
+      };
+    }
+
+    function getCanvasSize(canvas = document.querySelector('canvas')) {
+      if (canvas) {
+        const bounds = canvas.getBoundingClientRect();
+        if (bounds.width && bounds.height) {
+          return {
+            width: Math.round(bounds.width),
+            height: Math.round(bounds.height)
+          };
+        }
+      }
+
+      return {
+        width: Math.round(window.innerWidth),
+        height: Math.round(window.innerHeight)
+      };
+    }
+
+    function syncAppHeight() {
+      const { height } = getViewportSize();
+      document.documentElement.style.setProperty('--app-height', `${height}px`);
+
+      const screenCssHeight = screen.height * (window.innerWidth / screen.width);
+      const canvasHeight = Math.ceil(Math.max(
+        height,
+        window.innerHeight,
+        document.documentElement.clientHeight,
+        screen.height,
+        Number.isFinite(screenCssHeight) ? screenCssHeight : 0
+      ));
+      document.documentElement.style.setProperty('--canvas-height', `${canvasHeight}px`);
+
+      const extraCanvasHeight = Math.max(0, canvasHeight - height);
+      const isTouchViewport = navigator.maxTouchPoints > 0 && window.visualViewport;
+      const topOverscan = isTouchViewport
+        ? Math.ceil(Math.max(48, Math.min(120, extraCanvasHeight * 0.4)))
+        : 0;
+      document.documentElement.style.setProperty('--canvas-top-overscan', `${topOverscan}px`);
+      document.documentElement.style.setProperty('--canvas-top-offset', `${-topOverscan}px`);
+      document.documentElement.style.setProperty('--page-scroll-slack', `${topOverscan + 1}px`);
+    }
+
+    syncAppHeight();
+
+    function keepSafariChromePainted() {
+      if (navigator.maxTouchPoints > 0 && window.visualViewport && window.scrollY === 0) {
+        window.scrollTo(0, 1);
+      }
+    }
+
+    requestAnimationFrame(keepSafariChromePainted);
+
     // Scene, camera, renderer.
+    const canvasSize = getCanvasSize();
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xE8E8E8);
     scene.fog = new THREE.Fog(0xE8E8E8, 10, 50);
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1000);
+    const camera = new THREE.PerspectiveCamera(75, canvasSize.width / canvasSize.height, 0.01, 1000);
     camera.position.set(0, 2, 5);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(canvasSize.width, canvasSize.height, false);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     document.body.appendChild(renderer.domElement);
+    const renderedCanvasSize = getCanvasSize(renderer.domElement);
+    camera.aspect = renderedCanvasSize.width / renderedCanvasSize.height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(renderedCanvasSize.width, renderedCanvasSize.height, false);
     let menuActive = false;
     let originalPitch = camera.rotation.x;
 
@@ -762,11 +829,17 @@
       }
 
       animate();
-      window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
+      function resizeViewport() {
+        const { width, height } = getCanvasSize();
+        syncAppHeight();
+        keepSafariChromePainted();
+        camera.aspect = width / height;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      });
+        renderer.setSize(width, height, false);
+      }
+
+      window.addEventListener('resize', resizeViewport);
+      window.visualViewport?.addEventListener('resize', resizeViewport);
       updateTiles();
     }).catch(err => console.error('Error loading models:', err));
 
