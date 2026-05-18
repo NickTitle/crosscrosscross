@@ -62,7 +62,7 @@ async function openSite(page) {
 }
 
 async function acceptDisclaimer(page) {
-  await page.locator('#acknowledge').click();
+  await page.locator('#acknowledge').evaluate(input => input.click());
   await expect(page.locator('#loadingScreen')).toBeHidden({ timeout: 5000 });
 }
 

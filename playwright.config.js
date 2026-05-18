@@ -7,7 +7,8 @@ const baseURL = `http://${HOST}:${PORT}`;
 module.exports = defineConfig({
   testDir: './tests',
   outputDir: './test-results',
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: 1,
   timeout: 60 * 1000,
   expect: {
     timeout: 15 * 1000,
