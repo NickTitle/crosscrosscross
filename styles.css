@@ -332,14 +332,14 @@ a:visited {
     .pressContent {
         position: absolute;
         left: 50%;
-        top: 25%;
+        top: calc(25% + 48px);
         width: 49%;
     }
 
     .contactContent {
         position: absolute;
         left: 50%;
-        top: 25%;
+        top: calc(25% + 48px);
         width: 25%;
     }
 

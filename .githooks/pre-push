@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+set -eu
+
+if ! command -v npm >/dev/null 2>&1; then
+  echo "npm is required to run the UI test suite before push." >&2
+  exit 1
+fi
+
+if [ ! -d "node_modules" ]; then
+  echo "node_modules is missing. Run npm install before pushing." >&2
+  exit 1
+fi
+
+echo "Running UI tests before push..."
+log_file="${TMPDIR:-/tmp}/crosscrosscross-pre-push-test.log"
+rm -f "$log_file"
+
+npm test < /dev/null > "$log_file" 2>&1 &
+test_pid=$!
+
+while kill -0 "$test_pid" 2>/dev/null; do
+  echo "UI tests still running..."
+  sleep 10
+done
+
+if wait "$test_pid"; then
+  tail -40 "$log_file"
+  echo "UI tests passed. Continuing push."
+else
+  cat "$log_file"
+  echo "UI tests failed. Push blocked." >&2
+  exit 1
+fi

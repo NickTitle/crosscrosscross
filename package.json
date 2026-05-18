@@ -1,0 +1,28 @@
+{
+  "name": "crosscrosscross",
+  "version": "1.0.0",
+  "description": "Static Three.js portfolio site.",
+  "private": true,
+  "scripts": {
+    "prepare": "git config core.hooksPath .githooks || true",
+    "setup-hooks": "git config core.hooksPath .githooks",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:update-snapshots": "playwright test --update-snapshots"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NickTitle/crosscrosscross.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/NickTitle/crosscrosscross/issues"
+  },
+  "homepage": "https://github.com/NickTitle/crosscrosscross#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "http-server": "^14.1.1"
+  }
+}
