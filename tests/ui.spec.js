@@ -63,7 +63,24 @@ async function openSite(page) {
 
 async function acceptDisclaimer(page) {
   await page.locator('#acknowledge').evaluate(input => input.click());
-  await expect(page.locator('#loadingScreen')).toBeHidden({ timeout: 5000 });
+  await page.waitForTimeout(2600);
+
+  const transitionState = await page.evaluate(() => {
+    const loadingScreen = document.getElementById('loadingScreen');
+    const canvas = document.querySelector('canvas');
+
+    return {
+      canvasOpacity: getComputedStyle(canvas).opacity,
+      isLoading: document.body.classList.contains('is-loading'),
+      loaderHidden: !loadingScreen || getComputedStyle(loadingScreen).visibility === 'hidden',
+    };
+  });
+
+  expect(transitionState).toEqual({
+    canvasOpacity: '1',
+    isLoading: false,
+    loaderHidden: true,
+  });
 }
 
 async function expectCanvasToFillViewport(page) {
@@ -73,6 +90,47 @@ async function expectCanvasToFillViewport(page) {
   expect(canvasBounds).not.toBeNull();
   expect(canvasBounds.width).toBeGreaterThanOrEqual(viewport.width);
   expect(canvasBounds.height).toBeGreaterThanOrEqual(viewport.height);
+}
+
+async function expectLoadingOverlayCoversMobileOverscan(page) {
+  const extensionHeight = await page.locator('#loadingScreen').evaluate(loadingScreen => {
+    const root = document.documentElement;
+    const originalOverscan = root.style.getPropertyValue('--canvas-top-overscan');
+
+    root.style.setProperty('--canvas-top-overscan', '120px');
+    const height = parseFloat(getComputedStyle(loadingScreen, '::after').height);
+
+    if (originalOverscan) {
+      root.style.setProperty('--canvas-top-overscan', originalOverscan);
+    } else {
+      root.style.removeProperty('--canvas-top-overscan');
+    }
+
+    return height;
+  });
+
+  expect(extensionHeight).toBeGreaterThanOrEqual(340);
+}
+
+async function expectDisclaimerDoesNotJumpWithOverlayHeight(page) {
+  const shift = await page.locator('#disclaimer').evaluate(disclaimer => {
+    const root = document.documentElement;
+    const originalHeight = root.style.getPropertyValue('--canvas-height');
+    const before = disclaimer.getBoundingClientRect().top;
+
+    root.style.setProperty('--canvas-height', '1200px');
+    const after = disclaimer.getBoundingClientRect().top;
+
+    if (originalHeight) {
+      root.style.setProperty('--canvas-height', originalHeight);
+    } else {
+      root.style.removeProperty('--canvas-height');
+    }
+
+    return Math.abs(after - before);
+  });
+
+  expect(shift).toBeLessThan(1);
 }
 
 async function freezeCanvasAfterFrames(page, frames = 30) {
@@ -136,6 +194,8 @@ async function expectNoOverlap(page, firstSelector, secondSelector) {
 test('visual baseline for disclosure and menu overlays', async ({ page }) => {
   const runtimeErrors = await openSite(page);
 
+  await expectLoadingOverlayCoversMobileOverscan(page);
+  await expectDisclaimerDoesNotJumpWithOverlayHeight(page);
   await expect(page).toHaveScreenshot('disclaimer.png', {
     animations: 'disabled',
   });
@@ -185,6 +245,19 @@ test('selected works data renders into the UI', async ({ page }) => {
 
   expect(titles.sort()).toEqual([...expectedWorkTitles].sort());
   expect(imageAlts.sort()).toEqual([...expectedWorkTitles].sort());
+
+  expect(runtimeErrors).toEqual([]);
+});
+
+test('mobile scene taps do not throw runtime errors', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium-mobile', 'touch regression only applies to the mobile project');
+
+  const runtimeErrors = await openSite(page);
+
+  await acceptDisclaimer(page);
+  await expectCanvasToFillViewport(page);
+  await page.touchscreen.tap(200, 300);
+  await page.waitForTimeout(100);
 
   expect(runtimeErrors).toEqual([]);
 });

@@ -33,7 +33,14 @@ canvas {
     width: 100vw;
     height: 100lvh;
     height: calc(var(--canvas-height, 100lvh) + var(--canvas-top-overscan, 0px) + env(safe-area-inset-top));
+    background: #000;
+    opacity: 1;
+    transition: opacity 1s ease;
     z-index: 0;
+}
+
+body.is-loading canvas {
+    opacity: 0;
 }
 
 #loadingScreen {
@@ -45,13 +52,27 @@ canvas {
     height: 100lvh;
     height: var(--canvas-height, 100lvh);
     background-color: #000;
-    overflow: hidden;
-    transition: opacity 0.5s ease;
+    overflow: visible;
+    visibility: visible;
+    transition: opacity 0.5s ease, visibility 0s;
     z-index: 3000;
+}
+
+#loadingScreen::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    height: calc(var(--canvas-top-overscan, 0px) + env(safe-area-inset-top) + env(safe-area-inset-bottom) + 220px);
+    background: #000;
 }
 
 #loadingScreen.hiddenLoader {
     opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.5s ease, visibility 0s 0.5s;
 }
 
 #menuCatcher {
@@ -62,9 +83,10 @@ canvas {
 }
 
 #disclaimer {
-    position: absolute;
+    position: fixed;
     text-align: justify;
     top: 50%;
+    top: 50svh;
     left: 50%;
     margin-right: -50%;
     transform: translate(-50%, -50%);
@@ -107,6 +129,10 @@ input[type="checkbox"] {
 .hidden {
     visibility: hidden;
     opacity: 0;
+}
+
+.is-hidden {
+    display: none;
 }
 
 .fade {
